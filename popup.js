@@ -42,10 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // OpenAI API にリクエストを送信する関数
 async function analyzeDescription(description) {
-  require('dotenv').config();
-
-  const apiKey = process.env.API_KEY;
-  console.log(apiKey);
+  const apiKey = 'olqg0fgAIftacajXdBcyI2pc1TpyOGGOP0fzdOF7yHVRK0y7uMh9hF6LvpJ0J5TcpbELz6ys6NhBcKKZODQpl3A';
   const apiEndpoint = 'https://api.openai.iniad.org/api/v1/chat/completions';
 
   try {
