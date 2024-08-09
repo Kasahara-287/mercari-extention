@@ -1,11 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <title>Mercari Extension</title>
-  <script src="popup.js"></script>
+  <meta charset="UTF-8">
+  <title>Mercari Scam Detector</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ボタンが押された時のスタイル */
+    #analyzeButton:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
 </head>
 <body>
-  <h1>Mercari Extension</h1>
-  <button id="checkItems">Check Items</button>
+  <h1>Scam Detector</h1>
+  <button id="analyzeButton">Analyze</button>
+  <div id="result"></div>
+  <script src="popup.js"></script>
 </body>
 </html>

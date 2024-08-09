@@ -1,10 +1,14 @@
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    if (request.action === "checkItems") {
-      let items = document.querySelectorAll(".items-box .item");
-      items.forEach(item => {
-        let title = item.querySelector(".item-name").innerText;
-        let price = item.querySelector(".item-price").innerText;
-        console.log("Item:", title, price);
-      });
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'getDescription') {
+    const descriptionElement = document.querySelector('pre[data-testid="description"]');
+    if (descriptionElement) {
+      const description = descriptionElement.textContent.trim();
+      console.log("Description found:", description);
+      sendResponse({ description: description });
+    } else {
+      console.error("Description element not found.");
+      sendResponse({ description: null });
     }
-  });
+  }
+  return true; // 非同期で sendResponse を使用するため
+});

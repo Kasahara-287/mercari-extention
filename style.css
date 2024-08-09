@@ -1,0 +1,34 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 10px;
+  width: 300px; /* 幅を広げる */
+}
+
+h1 {
+  font-size: 18px;
+}
+
+#analyzeButton {
+  width: 100%;
+  padding: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+#analyzeButton:hover {
+  background-color: #45a049;
+}
+
+#result {
+  margin-top: 10px;
+  font-size: 14px;
+  white-space: pre-wrap; /* テキストの折り返しを有効にする */
+  word-wrap: break-word; /* 単語の折り返しを有効にする */
+  max-height: 400px; /* 高さを調整してスクロール可能にする */
+  overflow-y: auto; /* 縦スクロールを有効にする */
+  padding: 10px; /* パディングを追加して見やすくする */
+  border: 1px solid #ddd; /* 枠線を追加して表示領域を明確にする */
+  background-color: #f9f9f9; /* 背景色を追加してテキストが見やすくなるようにする */
+}

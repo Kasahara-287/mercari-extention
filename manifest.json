@@ -1,21 +1,22 @@
 {
-    "manifest_version": 2,
-    "name": "Mercari Extension",
-    "version": "1.0",
-    "description": "A Chrome extension for Mercari",
-    "background": {
-      "scripts": ["background.js"],
-      "persistent": false
-    },
-    "browser_action": {
-      "default_popup": "popup.html",
-      "default_icon": "icon.png"
-    },
-    "permissions": ["storage", "tabs", "https://www.mercari.com/"],
-    "content_scripts": [
-      {
-        "matches": ["https://www.mercari.com/*"],
-        "js": ["content.js"]
-      }
-    ]
-  }
+  "manifest_version": 3,
+  "name": "Mercari Scam Detector",
+  "version": "1.0",
+  "description": "Analyze Mercari product descriptions to detect potential scams.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://jp.mercari.com/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "host_permissions": [
+    "https://api.openai.iniad.org/*"
+  ]
+}
