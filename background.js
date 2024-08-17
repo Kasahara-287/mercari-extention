@@ -1,4 +1,3 @@
-background.js
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Mercari Scam Detector installed and ready to use.");
 });
