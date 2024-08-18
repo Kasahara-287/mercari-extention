@@ -12,3 +12,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
   return true; // 非同期で sendResponse を使用するため
 });
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'getDescription') {
+    const { title, description } = extractProductDetails();
+    sendResponse({ title, description });
+  }
+});
