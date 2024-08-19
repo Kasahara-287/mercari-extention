@@ -1,70 +1,57 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  padding: 10px;
-  width: 300px; /* 幅を広げる */
-  background-color: #f0f0f0;
+  padding: 20px;
+  width: 400px; /* 幅を広げて内容を収まりやすく */
+  background-color: #f7f7f7;
   color: #333;
 }
 
 h1 {
-  font-size: 18px;
+  font-size: 20px;
   color: #4CAF50;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   text-align: center;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
 }
 
 #analyzeButton {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   background-color: #4CAF50;
   color: white;
   border-radius: 4px;
   border: none;
   cursor: pointer;
   font-size: 16px;
-  transition: background-color 0.3s ease;
-}
-
-#analyzeButton2 {
-  width: 100%;
-  padding: 10px;
-  background-color: #4CAF50;
-  color: white;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.2s;
 }
 
 #analyzeButton:hover {
   background-color: #45a049;
+  transform: scale(1.05);
 }
 
-#analyzeButton2:hover {
-  background-color: #45a049;
+#analyzeButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
-#result {
-  margin-top: 10px;
+#result, #result2 {
+  margin-top: 15px;
   font-size: 14px;
-  white-space: pre-wrap; /* テキストの折り返しを有効にする */
-  word-wrap: break-word; /* 単語の折り返しを有効にする */
-  max-height: 400px; /* 高さを調整してスクロール可能にする */
-  overflow-y: auto; /* 縦スクロールを有効にする */
-  padding: 10px; /* パディングを追加して見やすくする */
-  border: 1px solid #ddd; /* 枠線を追加して表示領域を明確にする */
-  background-color: #f9f9f9; /* 背景色を追加してテキストが見やすくなるようにする */
+  white-space: normal; /* テキストが長い場合に折り返しを有効にする */
+  word-break: break-word; /* 単語の途中で折り返しを有効にする */
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 15px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-#result2 {
-  margin-top: 10px;
-  font-size: 14px;
-  white-space: pre-wrap; /* テキストの折り返しを有効にする */
-  word-wrap: break-word; /* 単語の折り返しを有効にする */
-  max-height: 400px; /* 高さを調整してスクロール可能にする */
-  overflow-y: auto; /* 縦スクロールを有効にする */
-  padding: 10px; /* パディングを追加して見やすくする */
-  border: 1px solid #ddd; /* 枠線を追加して表示領域を明確にする */
-  background-color: #f9f9f9; /* 背景色を追加してテキストが見やすくなるようにする */
+/* 共通の結果ボックスのスタイル */
+.result-container {
+  margin-top: 20px;
 }
