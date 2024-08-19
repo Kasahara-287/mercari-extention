@@ -7,8 +7,8 @@
       try {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   
-        resultElement.textContent = 'Analyzing...';
-        resultElement2.textContent = 'Analyzing...';
+        resultElement.textContent = '読み込み中です';
+        resultElement2.textContent = '読み込み中です';
         analyzeButton.disabled = true;
   
         chrome.scripting.executeScript({
@@ -61,7 +61,15 @@ async function getProductInfo(title, description) {
   const apiKey = 'olqg0fgAIftacajXdBcyI2pc1TpyOGGOP0fzdOF7yHVRK0y7uMh9hF6LvpJ0J5TcpbELz6ys6NhBcKKZODQpl3A';
   const apiEndpoint = 'https://api.openai.iniad.org/api/v1/chat/completions';
 
-  const prompt = `商品のタイトル: ${title}\n商品の説明文: ${description}\nこの商品の正式名称、定価、商品説明を提供してください。注意書き、前置きなどは必要としません。定価、商品説明はネットから引用してきてください。定価に関しては簡潔に数字のみで前置き、注意書きなどは記載しないで回答してください。またその価格はAmazonや楽天などのサイトを参考にしてください`;
+  const prompt = `商品のタイトル: ${title}\n商品の説明文: ${description}\nこの商品の正式名称、定価、商品説明を提供してください。注意書き、前置きなどは必要としません。定価、商品説明はネットから引用してきてください。定価に関しては簡潔に数字のみで前置き、注意書きなどは記載しないで回答してください。
+  価格については価格.com(https://kakaku.com/)というサイトの情報を最優先で参照してください。このサイトに情報がない場合は公式サイト、amazon、楽天などといったサイトから情報を取得してください。特定できる情報が取得できなければ(情報不足により不明)と出力してください。
+  またフォーマットは以下の通りです
+  商品名:
+  
+  定価:
+  
+  商品説明:
+  `;
 
   const response = await fetch(apiEndpoint, {
       method: 'POST',
@@ -131,8 +139,8 @@ async function analyzeDescriptionForGreeting(description) {
       body: JSON.stringify({
         model: 'gpt-4o-mini',
         messages: [{ role: 'user', content:  `あなたはメルカリで売られている商品が詐欺かどうかを判別するAIです。以下の商品説明文に基づいて詐欺の可能性を評価してください。ただし、商品画像や販売者の信頼性も考慮し、画像が不足している場合や、説明文が不十分な場合はそのことも評価に反映してください。
-詐欺の可能性のパーセンテージは基本低めで、文章がいびつであったり、詐欺または悪意があると思わしき用語がある場合はパーセンテージを上げてください。また、説明文に「箱のみ」「本体は付属しません」などといった箱だけを送って本体を送らないような詐欺も存在するため、そのような文言が見受けられた場合には危険度を高めてください。
-危険度が(0%-29%)の際は危険度:低、(30%-59%)では危険度:中、(60%-100%)では危険度:高と表記してください。
+詐欺の可能性のパーセンテージは基本低めで、文章がいびつであったり、詐欺または悪意があると思わしき用語がある場合はパーセンテージを上げてください。また、説明文に「箱のみ」「本体は付属しません」などといった箱だけを送って本体を送らないような詐欺も存在するため、そのような文言が見受けられた場合には危険度を高めてください。また写真読み込み機能はないため、写真については言及しないでください。
+危険度が(0%-40%)の際は危険度:低、(41%-70%)では危険度:中、(71%-100%)では危険度:高と表記してください。
 出力は次の形式でお願いします：
 
 [危険度:高,危険度:中,危険度:低]
