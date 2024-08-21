@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "Mercari Scam Detector",
   "version": "1.0",
-  "description": "Analyze Mercari product descriptions to detect potential scams.",
-  "permissions": ["activeTab", "scripting", "storage"],
+  "description": "Analyze Mercari product descriptions and images to detect potential scams.",
+  "permissions": ["activeTab", "scripting", "storage", "contextMenus"],
   "background": {
     "service_worker": "background.js"
   },
@@ -18,5 +18,10 @@
   ],
   "host_permissions": [
     "https://api.openai.iniad.org/*"
-  ]
+  ],
+  "icons": {
+    "16": "images/icon16.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  }
 }

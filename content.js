@@ -1,14 +1,24 @@
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'getDescription') {
-    const descriptionElement = document.querySelector('pre[data-testid="description"]');
-    if (descriptionElement) {
-      const description = descriptionElement.textContent.trim();
-      console.log("Description found:", description);
-      sendResponse({ description: description });
-    } else {
-      console.error("Description element not found.");
-      sendResponse({ description: null });
-    }
-  }
-  return true; // 非同期で sendResponse を使用するため
+window.addEventListener('load', () => {
+  const images = document.querySelectorAll("img");
+
+  images.forEach(image => {
+    const imageUrl = image.src;
+    // 画像がクリックされたとき、APIで画像を確認する機能を提供
+    image.addEventListener('click', () => {
+      checkImageExistence(imageUrl);
+    });
+  });
 });
+
+async function checkImageExistence(imageUrl) {
+  const response = await fetch("https://api.openai.iniad.org/check_image", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ imageUrl: imageUrl })
+  });
+
+  const data = await response.json();
+  alert(data.message);
+}
