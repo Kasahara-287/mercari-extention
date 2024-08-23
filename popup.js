@@ -1,46 +1,72 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-
   const analyzeButton = document.getElementById('analyzeButton');
   const resultElement = document.getElementById('result');
 
   analyzeButton.addEventListener('click', async () => {
-    try {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      try {
+          const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-      resultElement.textContent = 'Analyzing...';
-      analyzeButton.disabled = true;
+          resultElement.textContent = 'Analyzing...';
+          analyzeButton.disabled = true;
 
-      chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        files: ['content.js']
-      }, async () => {
-        chrome.tabs.sendMessage(tab.id, { action: 'getDescription' }, async (response) => {
-          if (response && response.description) {
-            try {
-              const result = await analyzeDescription(response.description);
-              if (result) {
-                resultElement.innerHTML = `<pre>${result}</pre>`;
-              } else {
-                resultElement.textContent = 'Failed to analyze description.';
-              }
-            } catch (error) {
-              console.error("Error during API analysis:", error);
-              resultElement.textContent = 'Failed to analyze description.';
-            }
-          } else {
-            resultElement.textContent = 'Failed to get description.';
-          }
+          chrome.scripting.executeScript({
+              target: { tabId: tab.id },
+              files: ['content.js']
+          }, async () => {
+              chrome.tabs.sendMessage(tab.id, { action: 'getDescription' }, async (response) => {
+                  if (response && response.description) {
+                      try {
+                          const result = await analyzeDescription(response.description);
+                          const trustScore = calculateTrustScore(response.rating, response.ratingCount, response.isVerified);
+
+                          if (result) {
+                              resultElement.innerHTML = `
+                                  <pre>${result}</pre>
+                                  <h2>信頼度: ${trustScore}</h2>
+                              `;
+                          } else {
+                              resultElement.textContent = 'Failed to analyze description.';
+                          }
+                      } catch (error) {
+                          console.error("Error during API analysis:", error);
+                          resultElement.textContent = 'Failed to analyze description.';
+                      }
+                  } else {
+                      resultElement.textContent = 'Failed to get description.';
+                  }
+                  analyzeButton.disabled = false;
+              });
+          });
+      } catch (error) {
+          console.error("Error during analysis:", error);
+          resultElement.textContent = 'Failed to get description.';
           analyzeButton.disabled = false;
-        });
-      });
-    } catch (error) {
-      console.error("Error during analysis:", error);
-      resultElement.textContent = 'Failed to get description.';
-      analyzeButton.disabled = false;
-    }
+      }
   });
 });
+
+// 信頼度を算出する関数
+function calculateTrustScore(rating, ratingCount, isVerified) {
+  if (rating !== null && ratingCount !== null) {
+      let trustPoints = rating * Math.sqrt(ratingCount);
+      
+      if (isVerified) {
+          trustPoints += 10; // 本人確認済みなら10ポイント加算
+      }
+
+      let trustLevel;
+      if (trustPoints >= 45) {
+          trustLevel = "高";
+      } else if (trustPoints >= 25) {
+          trustLevel = "中";
+      } else {
+          trustLevel = "低";
+      }
+      return trustLevel;
+  } else {
+      return '不明';
+  }
+}
 
 // OpenAI API にリクエストを送信する関数
 async function analyzeDescription(description) {
