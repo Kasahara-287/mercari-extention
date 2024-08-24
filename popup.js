@@ -1,9 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const analyzeButton = document.getElementById('analyzeButton');
-  const searchImageButton = document.createElement('button');
-  searchImageButton.textContent = '画像検索';
-  document.body.appendChild(searchImageButton);
-
+  const searchImageButton = document.getElementById('searchImageButton'); // 画像検索ボタンの取得
   const resultElement = document.getElementById('result');
   const resultElement2 = document.getElementById('result2');
 
