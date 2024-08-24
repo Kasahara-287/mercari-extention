@@ -123,6 +123,29 @@ document.addEventListener('DOMContentLoaded', () => {
   displayProductInfo();
 });
 
+// 信頼度を算出する関数
+function calculateTrustScore(rating, ratingCount, isVerified) {
+  if (rating !== null && ratingCount !== null) {
+      let trustPoints = rating * Math.sqrt(ratingCount);
+      
+      if (isVerified) {
+          trustPoints += 10; // 本人確認済みなら10ポイント加算
+      }
+
+      let trustLevel;
+      if (trustPoints >= 45) {
+          trustLevel = "高";
+      } else if (trustPoints >= 25) {
+          trustLevel = "中";
+      } else {
+          trustLevel = "低";
+      }
+      return trustLevel;
+  } else {
+      return '不明';
+  }
+}
+
 // OpenAI API にリクエストを送信する関数
 async function analyzeDescriptionForGreeting(description) {
 
