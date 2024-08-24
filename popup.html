@@ -4,27 +4,26 @@
   <meta charset="UTF-8">
   <title>Mercari Scam Detector</title>
   <link rel="stylesheet" href="style.css">
-    <style>
+  <style>
     /* ボタンが押された時のスタイル */
     #analyzeButton:disabled {
       background-color: #ccc;
       cursor: not-allowed;
     }
-    </style>
+    button {
+      display: block;
+      margin-top: 10px;
+      width: 100%;
+    }
+  </style>
 </head>
 <body>
-
-
-
   <button id="analyzeButton">AI分析開始</button>
+  <button id="searchImageButton">画像検索</button>
   <h1>商品説明</h1>
   <div id="result2"></div>
   <h1>危険度</h1>
   <div id="result"></div>
-    <script src="popup.js"></script>
-
-
-
-
+  <script src="popup.js"></script>
 </body>
 </html>
