@@ -20,8 +20,12 @@
               try {
                 // 1つ目の処理（危険度分析）
                 const result = await analyzeDescriptionForGreeting(response.description);
+                const trustScore = calculateTrustScore(response.rating, response.ratingCount, response.isVerified);
                 if (result) {
-                  resultElement.innerHTML = `<pre>${result}</pre>`;
+                  resultElement.innerHTML = `
+                  <pre>${result}</pre>
+                  <h2>信頼度: ${trustScore}</h2>
+                  `;
                 } else {
                   resultElement.textContent = 'Failed to analyze description.';
                 }
