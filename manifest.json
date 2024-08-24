@@ -20,3 +20,9 @@
     "https://api.openai.iniad.org/*"
   ]
 }
+{
+  "host_permissions": [
+    "https://api.openai.iniad.org/*",
+    "https://api.tineye.com/*"
+  ]
+}

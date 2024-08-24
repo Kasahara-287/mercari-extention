@@ -197,4 +197,31 @@ ${description}
     return null;
   }
 }
+analyzeButton.addEventListener('click', async () => {
+  try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+      // 既存のテキスト解析処理を実行
+      // ...
+
+      // 画像解析の実行
+      chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ['content.js']
+      }, async () => {
+          chrome.tabs.sendMessage(tab.id, { action: 'analyzeImages' }, (response) => {
+              if (response.foundSimilarImage) {
+                  resultElement2.innerHTML += `<p>ネット上から拾った画像の可能性があります。</p>`;
+              } else {
+                  resultElement2.innerHTML += `<p>画像は独自のものである可能性が高いです。</p>`;
+              }
+          });
+      });
+  } catch (error) {
+      console.error("Error during analysis:", error);
+      resultElement.textContent = 'Failed to get description.';
+      resultElement2.textContent = 'Failed to get description.';
+      analyzeButton.disabled = false;
+  }
+});
 
