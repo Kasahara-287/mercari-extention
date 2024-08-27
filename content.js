@@ -50,3 +50,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     sendResponse({ title, description });
   }
 });
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'getDescription') {
+        const descriptionElement = document.querySelector('pre[data-testid="description"]');
+        const imageElements = document.querySelectorAll('img'); // すべての画像を選択
+        const imageUrls = Array.from(imageElements).map(img => img.src); // URLを抽出
+
+        let description = descriptionElement ? descriptionElement.textContent.trim() : '';
+
+        sendResponse({ 
+            description, 
+            imageUrls // 画像URLも送信
+        });
+    }
+    return true; // 非同期レスポンスのため
+});

@@ -197,4 +197,46 @@ ${description}
     return null;
   }
 }
+document.addEventListener('DOMContentLoaded', () => {
+  const analyzeButton = document.getElementById('analyzeButton');
+  const resultElement = document.getElementById('result');
+  const resultElement2 = document.getElementById('result2');
+
+  analyzeButton.addEventListener('click', async () => {
+      try {
+          const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+          resultElement.textContent = '分析中...';
+          resultElement2.textContent = '分析中...';
+          analyzeButton.disabled = true;
+
+          chrome.scripting.executeScript({
+              target: { tabId: tab.id },
+              files: ['content.js']
+          }, async () => {
+              chrome.tabs.sendMessage(tab.id, { action: 'getDescription' }, async (response) => {
+                  if (response && response.description) {
+                      const imageAnalysis = response.imageAnalysis;
+
+                      // 画像解析結果を表示
+                      if (imageAnalysis) {
+                          resultElement.innerHTML += `<h2>画像解析結果:</h2><pre>${JSON.stringify(imageAnalysis, null, 2)}</pre>`;
+                      } else {
+                          resultElement.innerHTML += `<h2>画像解析結果:</h2><p>画像が見つからないか、解析に失敗しました。</p>`;
+                      }
+
+                      analyzeButton.disabled = false;
+                  } else {
+                      resultElement.textContent = '商品説明の取得に失敗しました。';
+                      analyzeButton.disabled = false;
+                  }
+              });
+          });
+      } catch (error) {
+          console.error("分析中にエラーが発生しました:", error);
+          resultElement.textContent = '商品説明の取得に失敗しました。';
+          analyzeButton.disabled = false;
+      }
+  });
+});
 
