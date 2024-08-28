@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
   const analyzeButton = document.getElementById('analyzeButton');
-  const searchImageButton = document.getElementById('searchImageButton');
   const resultElement = document.getElementById('result');
   const resultElement2 = document.getElementById('result2');
   const imageResultsElement = document.getElementById('imageResults');
@@ -39,6 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
                           } else {
                               resultElement2.textContent = 'Failed to analyze description.';
                           }
+                          
+                          // 3つ目の処理（自動画像検索）
+                          await searchImages(response.description.split(' ')[0]);
+
                       } catch (error) {
                           console.error("Error during API analysis:", error);
                           resultElement.textContent = 'Failed to analyze description.';
@@ -59,32 +62,27 @@ document.addEventListener('DOMContentLoaded', () => {
       }
   });
 
-  searchImageButton.addEventListener('click', async () => {
-      const query = prompt("検索したいキーワードを入力してください:");
-      if (query) {
-          imageResultsElement.textContent = '画像を検索中...';
-          searchImageButton.disabled = true;
-          const serpApiKey = 'YOUR_SERPAPI_KEY'; // SerpApiのAPIキーを使用します
+  async function searchImages(query) {
+      imageResultsElement.textContent = '画像を検索中...';
+      const serpApiKey = 'YOUR_SERPAPI_KEY'; // SerpApiのAPIキーを使用します
 
-          try {
-              const response = await fetch(`https://serpapi.com/search.json?q=${encodeURIComponent(query)}&engine=google_images&ijn=0&api_key=${serpApiKey}`);
-              const data = await response.json();
-              const images = data.images_results;
+      try {
+          const response = await fetch(`https://serpapi.com/search.json?q=${encodeURIComponent(query)}&engine=google_images&ijn=0&api_key=${serpApiKey}`);
+          const data = await response.json();
+          const images = data.images_results;
 
-              imageResultsElement.innerHTML = '';
-              images.forEach(image => {
-                  const imgElement = document.createElement('img');
-                  imgElement.src = image.thumbnail;
-                  imgElement.alt = query;
-                  imgElement.style.maxWidth = '100px';
-                  imgElement.style.margin = '5px';
-                  imageResultsElement.appendChild(imgElement);
-              });
-          } catch (error) {
-              console.error("Error fetching images:", error);
-              imageResultsElement.textContent = '画像の取得に失敗しました。';
-          }
-          searchImageButton.disabled = false;
+          imageResultsElement.innerHTML = '';
+          images.forEach(image => {
+              const imgElement = document.createElement('img');
+              imgElement.src = image.thumbnail;
+              imgElement.alt = query;
+              imgElement.style.maxWidth = '100px';
+              imgElement.style.margin = '5px';
+              imageResultsElement.appendChild(imgElement);
+          });
+      } catch (error) {
+          console.error("Error fetching images:", error);
+          imageResultsElement.textContent = '画像の取得に失敗しました。';
       }
-  });
+  }
 });
