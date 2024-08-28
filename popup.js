@@ -64,10 +64,10 @@ document.addEventListener('DOMContentLoaded', () => {
   
     async function searchImages(query) {
         imageResultsElement.textContent = '画像を検索中...';
-        const serpApiKey = 'YOUR_SERPAPI_KEY'; // SerpApiのAPIキーを使用します
+        const url = `https://serpapi.com/search.json?q=${encodeURIComponent(query)}&engine=google_images&ijn=0&api_key=YOUR_SERPAPI_KEY`;
   
         try {
-            const response = await fetch(`https://serpapi.com/search.json?q=${encodeURIComponent(query)}&engine=google_images&ijn=0&api_key=${serpApiKey}`);
+            const response = await fetch(url);
             const data = await response.json();
             const images = data.images_results;
   
@@ -88,14 +88,14 @@ document.addEventListener('DOMContentLoaded', () => {
   
     async function analyzeDescriptionForGreeting(description) {
         const apiEndpoint = 'https://api.openai.iniad.org/api/v1/chat/completions';
-        const openAiApiKey = 'YOUR_OPENAI_API_KEY'; // OpenAIのAPIキーを使用します
+        const url = apiEndpoint;
   
         try {
-            const response = await fetch(apiEndpoint, {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${openAiApiKey}`
+                    'Authorization': `Bearer YOUR_OPENAI_API_KEY`
                 },
                 body: JSON.stringify({
                     model: 'gpt-4o-mini',
@@ -139,8 +139,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   
     async function getProductInfo(title, description) {
-        const apiKey = 'YOUR_OPENAI_API_KEY';
         const apiEndpoint = 'https://api.openai.iniad.org/api/v1/chat/completions';
+        const url = apiEndpoint;
   
         const prompt = `商品のタイトル: ${title}\n商品の説明文: ${description}\nこの商品の正式名称、定価、商品説明を提供してください。注意書き、前置きなどは必要としません。定価、商品説明はネットから引用してきてください。定価に関しては簡潔に数字のみで前置き、注意書きなどは記載しないで回答してください。
         価格については価格.com(https://kakaku.com/)というサイトの情報を最優先で参照してください。このサイトに情報がない場合は公式サイト、amazon、楽天などといったサイトから情報を取得してください。特定できる情報が取得できなければ(情報不足により不明)と出力してください。
@@ -153,11 +153,11 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
   
         try {
-            const response = await fetch(apiEndpoint, {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
+                    'Authorization': `Bearer YOUR_OPENAI_API_KEY`
                 },
                 body: JSON.stringify({
                     model: 'gpt-4o-mini',
@@ -176,4 +176,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
   });
+  
   
