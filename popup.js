@@ -239,4 +239,32 @@ document.addEventListener('DOMContentLoaded', () => {
       }
   });
 });
+async function analyzeDescriptionForGreeting(description) {
+  const apiEndpoint = 'https://api.openai.iniad.org/api/v1/chat/completions';
+
+  try {
+      const response = await fetch(apiEndpoint, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${openAiApiKey}`
+          },
+          body: JSON.stringify({
+              model: 'gpt-4o-mini',
+              messages: [{ 
+                  role: 'user', 
+                  content: `あなたはメルカリで売られている商品が危険かどうかを判別し購入を控えるべきか否かを判断するAIです。以下の商品説明文に基づいて危険度の可能性を評価してください。
+                  商品説明: ${description}` 
+              }],
+              max_tokens: 200
+          })
+      });
+
+      const data = await response.json();
+      return data.choices[0].message.content.trim();
+  } catch (error) {
+      console.error('Error during API request:', error);
+      return null;
+  }
+}
 
