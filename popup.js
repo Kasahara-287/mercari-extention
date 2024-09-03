@@ -93,7 +93,11 @@ async function getProductInfo(title, description) {
   const data = await response.json();
   return data.choices[0].message.content;
 }
+let description = "商品の価格は5000円で、送料は無料です。";
+description = description.replace(/送料/g, "<span class='bold'>送料</span>");
+description = description.replace(/料金/g, "<span class='bold'>料金</span>");
 
+document.getElementById('result').innerHTML = description;
 // メルカリページからタイトルと説明文を取得
 function extractProductDetails() {
   const titleElement = document.querySelector('.item-title'); // タイトルのセレクタ
