@@ -93,11 +93,7 @@ async function getProductInfo(title, description) {
   const data = await response.json();
   return data.choices[0].message.content;
 }
-let description = "商品の価格は5000円で、送料は無料です。";
-description = description.replace(/送料/g, "<span class='bold'>送料</span>");
-description = description.replace(/料金/g, "<span class='bold'>料金</span>");
 
-document.getElementById('result').innerHTML = description;
 // メルカリページからタイトルと説明文を取得
 function extractProductDetails() {
   const titleElement = document.querySelector('.item-title'); // タイトルのセレクタ
@@ -202,3 +198,40 @@ ${description}
   }
 }
 
+chrome.tabs.sendMessage(tab.id, { action: 'getDescription' }, async (response) => {
+  if (response && response.description) {
+      try {
+          // 1つ目の処理（危険度分析）
+          let description = response.description;
+          description = description.replace(/送料/g, "<strong>送料</strong>");
+          description = description.replace(/料金/g, "<strong>料金</strong>");
+          
+          const result = await analyzeDescriptionForGreeting(description);
+          const trustScore = calculateTrustScore(response.rating, response.ratingCount, response.isVerified);
+          if (result) {
+              resultElement.innerHTML = `
+              <pre>${result}</pre>
+              <h2>信頼度: ${trustScore}</h2>
+              `;
+          } else {
+              resultElement.textContent = 'Failed to analyze description.';
+          }
+
+          // 2つ目の処理（商品情報取得）
+          const result2 = await getProductInfo(response.title, description); // 修正後のdescriptionを使う
+          if (result2) {
+              resultElement2.innerHTML = `<pre>${result2}</pre>`;
+          } else {
+              resultElement2.textContent = 'Failed to analyze description.';
+          }
+      } catch (error) {
+          console.error("Error during API analysis:", error);
+          resultElement.textContent = 'Failed to analyze description.';
+          resultElement2.textContent = 'Failed to analyze description.';
+      }
+  } else {
+      resultElement.textContent = 'Failed to get description.';
+      resultElement2.textContent = 'Failed to get description.';
+  }
+  analyzeButton.disabled = false;
+});
