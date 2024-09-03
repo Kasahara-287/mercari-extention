@@ -84,3 +84,37 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
     return true;
 });
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'getDescription') {
+        const descriptionElement = document.querySelector('pre[data-testid="description"]');
+        const categoryElement = document.querySelector('.item-category'); // カテゴリのセレクタ例
+
+        let category = 'カテゴリ不明';
+        if (categoryElement) {
+            category = categoryElement.textContent.trim();
+        }
+
+        // ... 既存のコード ...
+
+        if (descriptionElement) {
+            const description = descriptionElement.textContent.trim();
+            sendResponse({
+                description: description,
+                category: category,
+                rating: rating,
+                ratingCount: ratingCount,
+                isVerified: isVerified
+            });
+        } else {
+            console.error("Description element not found.");
+            sendResponse({
+                description: null,
+                category: null,
+                rating: null,
+                ratingCount: null,
+                isVerified: null
+            });
+        }
+    }
+    return true;
+});
