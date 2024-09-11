@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Mercari Scam Detector",
-  "version": "1.0",
-  "description": "Analyze Mercari product descriptions to detect potential scams.",
+  "version": "1.1",
+  "description": "メルカリの商品説明と画像を分析して、潜在的な詐欺を検出する。",
   "permissions": ["activeTab", "scripting", "storage"],
   "background": {
     "service_worker": "background.js"
@@ -17,6 +17,7 @@
     }
   ],
   "host_permissions": [
-    "https://api.openai.iniad.org/*"
+    "https://api.openai.iniad.org/*",
+    "https://www.googleapis.com/*"
   ]
 }

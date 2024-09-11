@@ -44,9 +44,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   return true; // 非同期で sendResponse を使用するため
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'getDescription') {
-    const { title, description } = extractProductDetails();
-    sendResponse({ title, description });
-  }
+// 商品ページから最初の画像URLを取得する関数
+function getImageUrl() {
+    const imgElement = document.querySelector('img[data-testid="product-image"]');
+    if (imgElement) {
+        return imgElement.src;
+    }
+    return null;
+}
+
+// ポップアップからのメッセージを受け取る
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'getImageUrl') {
+        const imageUrl = getImageUrl();
+        if (imageUrl) {
+            sendResponse({ imageUrl: imageUrl });
+        } else {
+            sendResponse({ error: '画像が見つかりません' });
+        }
+    }
+    return true; // 非同期でsendResponseを使用するため
 });
