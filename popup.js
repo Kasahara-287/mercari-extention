@@ -2,7 +2,8 @@
     const analyzeButton = document.getElementById('analyzeButton');
     const resultElement = document.getElementById('result');
     const resultElement2 = document.getElementById('result2');
-  
+    const trustScoreElement = document.getElementById('trustScore');
+    
     analyzeButton.addEventListener('click', async () => {
       try {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -26,6 +27,7 @@
                   <pre>${result}</pre>
                   <h2>信頼度: ${trustScore}</h2>
                   `;
+                  updateTrustScore(trustScore);
                 } else {
                   resultElement.textContent = 'Failed to analyze description.';
                 }
