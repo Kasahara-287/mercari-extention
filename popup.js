@@ -2,8 +2,7 @@
     const analyzeButton = document.getElementById('analyzeButton');
     const resultElement = document.getElementById('result');
     const resultElement2 = document.getElementById('result2');
-    const trustScoreElement = document.getElementById('trustScore');
-    
+
     analyzeButton.addEventListener('click', async () => {
       try {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -60,6 +59,20 @@
     });
   });
 
+function updateTrustScore(trustLevel) {
+  const trustScoreElement = document.getElementById('trustScore');
+  trustScoreElement.className = ''; // 既存のクラスをリセット
+  if (trustLevel === '高') {
+    trustScoreElement.classList.add('trust-high');
+  } else if (trustLevel === '中') {
+    trustScoreElement.classList.add('trust-medium');
+  } else if (trustLevel === '低') {
+    trustScoreElement.classList.add('trust-low');
+  }
+}
+
+// 例: 信頼度を"中"に設定
+updateTrustScore('中');
 
 
 
@@ -123,20 +136,6 @@ async function displayProductInfo() {
       console.log('商品情報を取得できませんでした。');
   }
 }
-
-function updateTrustScore(trustLevel) {
-  const trustScoreElement = document.getElementById('trustScore');
-  trustScoreElement.className = ''; // 既存のクラスをリセット
-  if (trustLevel === '高') {
-    trustScoreElement.classList.add('trust-high');
-  } else if (trustLevel === '中') {
-    trustScoreElement.classList.add('trust-medium');
-  } else if (trustLevel === '低') {
-    trustScoreElement.classList.add('trust-low');
-  }
-}
-
-
 
 // ページ読み込み時に実行
 document.addEventListener('DOMContentLoaded', () => {
