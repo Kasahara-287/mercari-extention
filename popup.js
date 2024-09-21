@@ -122,6 +122,22 @@ async function displayProductInfo() {
   }
 }
 
+function updateTrustScore(trustLevel) {
+  const trustScoreElement = document.getElementById('trustScore');
+  trustScoreElement.className = ''; // 既存のクラスをリセット
+  if (trustLevel === '高') {
+    trustScoreElement.classList.add('trust-high');
+  } else if (trustLevel === '中') {
+    trustScoreElement.classList.add('trust-medium');
+  } else if (trustLevel === '低') {
+    trustScoreElement.classList.add('trust-low');
+  }
+}
+
+// 例: 信頼度を"中"に設定
+updateTrustScore('中');
+
+
 // ページ読み込み時に実行
 document.addEventListener('DOMContentLoaded', () => {
   displayProductInfo();
