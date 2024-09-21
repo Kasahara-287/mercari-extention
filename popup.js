@@ -1,63 +1,72 @@
-  document.addEventListener('DOMContentLoaded', () => {
-    const analyzeButton = document.getElementById('analyzeButton');
-    const resultElement = document.getElementById('result');
-    const resultElement2 = document.getElementById('result2');
-  
-    analyzeButton.addEventListener('click', async () => {
-      try {
-        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  
-        resultElement.textContent = '読み込み中です';
-        resultElement2.textContent = '読み込み中です';
-        analyzeButton.disabled = true;
-  
-        chrome.scripting.executeScript({
-          target: { tabId: tab.id },
-          files: ['content.js']
-        }, async () => {
-          chrome.tabs.sendMessage(tab.id, { action: 'getDescription' }, async (response) => {
-            if (response && response.description) {
-              try {
-                // 1つ目の処理（危険度分析）
-                const result = await analyzeDescriptionForGreeting(response.description);
-                const trustScore = calculateTrustScore(response.rating, response.ratingCount, response.isVerified);
-                if (result) {
-                  resultElement.innerHTML = `
+document.addEventListener('DOMContentLoaded', () => {
+  const analyzeButton = document.getElementById('analyzeButton');
+  const resultElement = document.getElementById('result');
+  const resultElement2 = document.getElementById('result2');
+
+  analyzeButton.addEventListener('click', async () => {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+      resultElement.textContent = '読み込み中です';
+      resultElement2.textContent = '読み込み中です';
+      analyzeButton.disabled = true;
+
+      chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ['content.js']
+      }, async () => {
+        chrome.tabs.sendMessage(tab.id, { action: 'getDescription' }, async (response) => {
+          if (response && response.description) {
+            try {
+              // 1つ目の処理（危険度分析）
+              const result = await analyzeDescriptionForGreeting(response.description);
+              const trustScore = calculateTrustScore(response.rating, response.ratingCount, response.isVerified);
+              
+              let trustClass = '';
+              if (trustScore === '高') {
+                trustClass = 'high-trust';
+              } else if (trustScore === '中') {
+                trustClass = 'medium-trust';
+              } else if (trustScore === '低') {
+                trustClass = 'low-trust';
+              }
+
+              if (result) {
+                resultElement.innerHTML = `
                   <pre>${result}</pre>
-                  <h2>信頼度: ${trustScore}</h2>
-                  `;
-                } else {
-                  resultElement.textContent = 'Failed to analyze description.';
-                }
-  
-                // 2つ目の処理（商品情報取得）
-                const result2 = await getProductInfo(response.title, response.description);
-                if (result2) {
-                  resultElement2.innerHTML = `<pre>${result2}</pre>`;
-                } else {
-                  resultElement2.textContent = 'Failed to analyze description.';
-                }
-              } catch (error) {
-                console.error("Error during API analysis:", error);
+                  <h2 class="${trustClass}">信頼度: ${trustScore}</h2>
+                `;
+              } else {
                 resultElement.textContent = 'Failed to analyze description.';
+              }
+
+              // 2つ目の処理（商品情報取得）
+              const result2 = await getProductInfo(response.title, response.description);
+              if (result2) {
+                resultElement2.innerHTML = `<pre>${result2}</pre>`;
+              } else {
                 resultElement2.textContent = 'Failed to analyze description.';
               }
-            } else {
-              resultElement.textContent = 'Failed to get description.';
-              resultElement2.textContent = 'Failed to get description.';
+            } catch (error) {
+              console.error("Error during API analysis:", error);
+              resultElement.textContent = 'Failed to analyze description.';
+              resultElement2.textContent = 'Failed to analyze description.';
             }
-            analyzeButton.disabled = false;
-          });
+          } else {
+            resultElement.textContent = 'Failed to get description.';
+            resultElement2.textContent = 'Failed to get description.';
+          }
+          analyzeButton.disabled = false;
         });
-      } catch (error) {
-        console.error("Error during analysis:", error);
-        resultElement.textContent = 'Failed to get description.';
-        resultElement2.textContent = 'Failed to get description.';
-        analyzeButton.disabled = false;
-      }
-    });
+      });
+    } catch (error) {
+      console.error("Error during analysis:", error);
+      resultElement.textContent = 'Failed to get description.';
+      resultElement2.textContent = 'Failed to get description.';
+      analyzeButton.disabled = false;
+    }
   });
-
+});
 
 
 
