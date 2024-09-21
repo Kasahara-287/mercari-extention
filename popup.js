@@ -126,6 +126,7 @@ async function displayProductInfo() {
 
 function updateTrustScore(trustLevel) {
   const trustScoreElement = document.getElementById('trustScore');
+  trustScoreElement.className = ''; // 既存のクラスをリセット
   if (trustLevel === '高') {
     trustScoreElement.classList.add('trust-high');
   } else if (trustLevel === '中') {
