@@ -66,7 +66,7 @@ async function getProductInfo(title, description) {
   const apiEndpoint = 'https://api.openai.iniad.org/api/v1/chat/completions';
 
   const prompt = `商品のタイトル: ${title}\n商品の説明文: ${description}\nこの商品の正式名称、定価、商品説明を提供してください。注意書き、前置きなどは必要としません。定価、商品説明はネットから引用してきてください。定価に関しては簡潔に数字のみで前置き、注意書きなどは記載しないで回答してください。
-  価格については価格.com(https://kakaku.com/)というサイトの情報を最優先で参照してください。このサイトに情報がない場合は公式サイト、amazon、楽天などといったサイトから情報を取得してください。特定できる情報が取得できなければ(情報不足により不明)と出力してください。
+  価格については価格.com(https://kakaku.com/)というサイトの情報を最優先で参照してください。このサイトに情報がない場合は公式サイト、amazon(https://www.amazon.co.jp/)、楽天(https://www.rakuten.co.jp/)などといったサイトから情報を取得してください。特定できる情報が取得できなければ(情報不足により不明)と出力してください。
   またフォーマットは以下の通りです
   商品名:
   
