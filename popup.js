@@ -31,7 +31,7 @@
               } else {
                 resultElement.textContent = 'Failed to analyze description.';
               }
-              
+
                 // 2つ目の処理（商品情報取得）
                 const result2 = await getProductInfo(response.title, response.description);
                 if (result2) {
@@ -129,26 +129,33 @@ document.addEventListener('DOMContentLoaded', () => {
   displayProductInfo();
 });
 
-// 信頼度を算出する関数
-function calculateTrustScore(rating, ratingCount, isVerified) {
-  if (rating !== null && ratingCount !== null) {
-      let trustPoints = rating * Math.sqrt(ratingCount);
-      
-      if (isVerified) {
-          trustPoints += 10; // 本人確認済みなら10ポイント加算
-      }
+// 信頼度を更新する関数
+function updateTrustScore(trustLevel) {
+  const trustScoreElement = document.getElementById('trustScore');
+  trustScoreElement.className = ''; // 既存のクラスをリセット
+  if (trustLevel === '高') {
+    trustScoreElement.classList.add('trust-high');
+  } else if (trustLevel === '中') {
+    trustScoreElement.classList.add('trust-medium');
+  } else if (trustLevel === '低') {
+    trustScoreElement.classList.add('trust-low');
+  }
+}
 
-      let trustLevel;
-      if (trustPoints >= 45) {
-          trustLevel = "高";
-      } else if (trustPoints >= 25) {
-          trustLevel = "中";
-      } else {
-          trustLevel = "低";
-      }
-      return trustLevel;
+// 信頼度を計算する関数
+function calculateTrustScore(rating, ratingCount, isVerified) {
+  let trustPoints = rating * Math.sqrt(ratingCount);
+
+  if (isVerified) {
+    trustPoints += 10;
+  }
+
+  if (trustPoints >= 45) {
+    return '高';
+  } else if (trustPoints >= 25) {
+    return '中';
   } else {
-      return '不明';
+    return '低';
   }
 }
 
