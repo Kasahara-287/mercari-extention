@@ -133,8 +133,6 @@ function updateTrustScore(trustLevel) {
   }
 }
 
-// 例: 信頼度を"中"に設定
-updateTrustScore('中');
 
 
 // ページ読み込み時に実行
