@@ -2,7 +2,8 @@
     const analyzeButton = document.getElementById('analyzeButton');
     const resultElement = document.getElementById('result');
     const resultElement2 = document.getElementById('result2');
-  
+    const trustScoreElement = document.getElementById('trustScore');
+
     analyzeButton.addEventListener('click', async () => {
       try {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -20,16 +21,17 @@
               try {
                 // 1つ目の処理（危険度分析）
                 const result = await analyzeDescriptionForGreeting(response.description);
-                const trustScore = calculateTrustScore(response.rating, response.ratingCount, response.isVerified);
-                if (result) {
-                  resultElement.innerHTML = `
+              const trustScore = calculateTrustScore(response.rating, response.ratingCount, response.isVerified);
+              if (result) {
+                resultElement.innerHTML = `
                   <pre>${result}</pre>
                   <h2>信頼度: ${trustScore}</h2>
-                  `;
-                } else {
-                  resultElement.textContent = 'Failed to analyze description.';
-                }
-  
+                `;
+                updateTrustScore(trustScore);
+              } else {
+                resultElement.textContent = 'Failed to analyze description.';
+              }
+              
                 // 2つ目の処理（商品情報取得）
                 const result2 = await getProductInfo(response.title, response.description);
                 if (result2) {
