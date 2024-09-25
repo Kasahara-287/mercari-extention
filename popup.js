@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
               } else if (trustScore === '低') {
                 trustClass = 'low-trust';
               }
-
+              
               if (result) {
                 resultElement.innerHTML = `
                   <pre>${result}</pre>
@@ -156,15 +156,7 @@ function calculateTrustScore(rating, ratingCount, isVerified) {
       }
       return trustLevel;
 
-      let trustlevelClass = '';
-      if (trustLevel === '高') {
-        trustlevelClass = 'high-trust1';
-      } else if (trustlevel === '中') {
-        trustlevelClass = 'medium-trust1';
-      } else if (trustlevel === '低') {
-        trustlevelClass = 'low-trust1';
-      }
-
+    
   } else {
       return '不明';
   }
