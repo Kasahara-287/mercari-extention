@@ -42,14 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
               // 2つ目の処理（商品情報取得）
               const result2 = await getProductInfo(response.title, response.description);
-              let result2Class = '';
-              if (result2 === '高') {
-                result2Class = 'high-trust';
-              } else if ( result2 === '中') {
-                result2Class = 'medium-trust';
-              } else if (result2 === '低') {
-                trustClass = 'low-trust';
-              }
+              
               if (result2) {
                 resultElement2.innerHTML = `<pre>${result2}</pre>`;
               } else {
@@ -152,14 +145,17 @@ function calculateTrustScore(rating, ratingCount, isVerified) {
       if (isVerified) {
           trustPoints += 10; // 本人確認済みなら10ポイント加算
       }
-
+      let trustlevelClass = '';
       let trustLevel;
       if (trustPoints >= 45) {
           trustLevel = "高";
+          trustlevelClass = 'high-trust1';
       } else if (trustPoints >= 25) {
           trustLevel = "中";
+          trustlevelClass = 'medium-trust1';
       } else {
           trustLevel = "低";
+          trustlevelClass = 'low-trust1';
       }
       return trustLevel;
   } else {
