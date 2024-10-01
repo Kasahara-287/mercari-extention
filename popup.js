@@ -189,6 +189,8 @@ async function analyzeDescriptionForGreeting(description) {
 
 [OO%危険度:高,OO%危険度:中,OO%危険度:低]
 
+[点数計算の表示]
+
 [箇条書きでリスクを列挙]
 
 理由: [リスクに対する理由を簡潔に説明](出力した文字数が枠組みに合うようにうまく改行してください)
