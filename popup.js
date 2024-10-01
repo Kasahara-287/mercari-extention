@@ -184,10 +184,10 @@ async function analyzeDescriptionForGreeting(description) {
 「無言取引NG」等の文言があった場合は、ほかフリマサイトと取引を同時に行っている可能性があります。その場合は「他サイトにも出品している可能性があり取引時のトラブルに発展しやすい」と記載し、危険度を上げてください。
 「無言取引NG」等の文言がなかった場合に無言取引等に関する文章の記載は一切しないでください。「無言取引NG」等の文言がないというのはリスクにはなりません。またそれらの文言はないのが当たり前であるため、ないからと言って危険度を下げる、または文章出力するのはしないでください。
 できるだけ詳しく記載してください。
-危険度が(0%-40%)の際は危険度:低、(41%-70%)では危険度:中、(71%-100%)では危険度:高と表記してください。
+危険度が(0%-40%)の際は○○％危険度:低、(41%-70%)ではOO%危険度:中、(71%-100%)ではOO%危険度:高とOO%のOOにはその時の危険度を表記してください。
 出力は次の形式でお願いします：
 
-[危険度:高,危険度:中,危険度:低]
+[OO%危険度:高,OO%危険度:中,OO%危険度:低]
 
 [箇条書きでリスクを列挙]
 
@@ -215,35 +215,3 @@ ${description}
   }
 }
 
-// 既存のコードの最後に以下のコードを追加
-
-async function fetchPriceFromExternalSources(title) {
-  const response = await fetch(`https://api.externalpricing.com/search?query=${encodeURIComponent(title)}`);
-  const data = await response.json();
-  
-  if (data.price) {
-      return `現在の市場価格: ${data.price}`;
-  } else {
-      return '市場価格を取得できませんでした。';
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const analyzeButton = document.getElementById('analyzeButton');
-  const resultElement = document.getElementById('result');
-
-  analyzeButton.addEventListener('click', async () => {
-      const description = await getDescriptionFromPage(); // 商品説明を取得
-      const sellerAnalysis = analyzeSeller(ratingCount, listingCount); // 出品者の評価を分析
-      const keywordAnalysis = detectScamKeywords(description); // キーワードを分析
-      const priceAnalysis = await fetchPriceFromExternalSources(title); // 外部サイトから価格を取得
-      const listingAgeWarning = checkListingAge(listingDate); // 出品経過時間をチェック
-
-      resultElement.innerHTML = `
-          <p>${sellerAnalysis}</p>
-          <p>${keywordAnalysis}</p>
-          <p>${priceAnalysis}</p>
-          <p>${listingAgeWarning}</p>
-      `;
-  });
-});
