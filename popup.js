@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
               if (result) {
                 resultElement.innerHTML = `
                   <pre>${result}</pre>
-                  <h2 class="${trustClass}">信頼度: ${trustScore}</h2>
+                  <h2 class="${trustClass}">この人の信頼度: ${trustScore}</h2>
                 `;
               } else {
                 resultElement.textContent = 'Failed to analyze description.';
