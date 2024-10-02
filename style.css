@@ -46,6 +46,7 @@ h1 {
 }
 
 #result, #result2 {
+  font-family: "游明朝","Yu Mincho";
   margin-top: 15px;
   font-size: 14px;
   white-space: normal; /* テキストが長い場合に折り返しを有効にする */
