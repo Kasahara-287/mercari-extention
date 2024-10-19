@@ -85,6 +85,20 @@ h1 {
   animation-duration:5s;
 }
 
+.danger-high {
+  font-weight: bold;
+  color: red;
+}
+
+.danger-medium {
+  font-weight: bold;
+  color: orange;
+}
+
+.danger-low {
+  font-weight: bold;
+  color: green;
+}
 
 
 @keyframes slide {
