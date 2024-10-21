@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (response && response.description) {
             try {
               // 1つ目の処理（危険度分析）
-              const result = await analyzeDescriptionForGreeting(response.description);
+              const result = await analyzeDescriptionForGreeting(response.description, response.imageUrls);
               const trustScore = calculateTrustScore(response.rating, response.ratingCount, response.isVerified);
               
               let trustClass = '';
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
               if (result) {
                 resultElement.innerHTML = `
                   <pre>${result}</pre>
-                  <h2 class="${trustClass}">信頼度: ${trustScore}</h2>
+                  <h2 class="${trustClass}">出品者の信頼度: ${trustScore}</h2>
                 `;
               } else {
                 resultElement.textContent = 'Failed to analyze description.';
@@ -69,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
-
 
 
 async function getProductInfo(title, description) {
@@ -162,33 +161,37 @@ function calculateTrustScore(rating, ratingCount, isVerified) {
 }
 
 // OpenAI API にリクエストを送信する関数
-async function analyzeDescriptionForGreeting(description) {
+async function analyzeDescriptionForGreeting(description, imageUrls) {
 
   apiKey='olqg0fgAIftacajXdBcyI2pc1TpyOGGOP0fzdOF7yHVRK0y7uMh9hF6LvpJ0J5TcpbELz6ys6NhBcKKZODQpl3A'
   const apiEndpoint = 'https://api.openai.iniad.org/api/v1/chat/completions';
-
+  
   try {
-    const message = `あなたはメルカリで売られている商品が危険かどうかを判別し購入を控えるべきか否かを判断するAIです。以下の商品説明文、またメインの商品画像に基づいて商品購入についての危険度(詐欺の可能性があるか、等)を評価してください。
+    const message = `あなたはメルカリで売られている商品が危険かどうかを判別し購入を控えるべきか否かを判断するAIです。以下の商品説明文、またメインの商品画像に基づいて商品購入についての危険度(詐欺の可能性があるか、不当な取引であるか、等)を評価してください。
 
 危険度が(0%-40%)の際は危険度:低、(41%-70%)では危険度:中、(71%-100%)では危険度:高と表記してください。
 以下が、商品を解析する際の条件です。    
 1,危険度は基本低めで設定してください。
 2,商品説明文において、文章がいびつであったり、詐欺または悪意があると思わしき用語がある場合は危険度を上げてください。また、説明文に「箱のみ」「本体は付属しません」などといった箱だけを送って本体を送らないような詐欺も存在するため、そのような文言が見受けられた場合にはさらに危険度を高めてください。
-3,商品画像については、商品説明で述べられていることとの差異や、詐欺または悪意などが見受けられる場合は危険度を挙げてください。
+3,商品画像については、商品説明で述べられていることとの差異や、詐欺または悪意などが見受けられる場合はより危険度を挙げてください。画像と商品説明文の差異が大きい場合、危険度：中以上まで大きく危険度を挙げてください。
 4,「無言取引NG」等の文言があった場合は、他フリマサイトと取引を同時に行っている可能性があります。その場合は「他サイトにも出品している可能性があり、取引時のトラブルに発展しやすい」と記載し、危険度を上げてください。
-5,「無言取引NG」等の文言がなかった場合に無言取引等に関する文章の記載は一切しないでください。「無言取引NG」等の文言がないというのはリスクにはなりません。またそれらの文言はないのが当たり前であるため、ないからと言って危険度を下げる、または文章出力するのはしないでください。
+5,「無言取引NG」等の文言がなかった場合に無言取引等に関する文章の記載は一切しないでください。「無言取引NG」等の文言がないというのはリスクにはなりません。またそれらの文言はないのが当たり前であるため、ないからと言って危険度を下げる、またはそれについての記述はしないでください。
 6,できるだけ詳しく記載してください。
 また、出力は次の形式でお願いします：
 
-[危険度:高,危険度:中,危険度:低]
+[商品の危険度:高,商品の危険度:中,商品の危険度:低]
 
+[どのような商品か簡潔に]
+[画像についての解析結果(何が写っているか)を簡略化して標示]
 [箇条書きでリスクを列挙]
-[画像についての解析結果を簡略化して標示]
 
 理由: [リスクに対する理由を簡潔に説明](出力した文字数が枠組みに合うようにうまく改行してください)
 
 商品説明:
 ${description}
+
+画像URL:
+${imageUrls}
 `;
     const response = await fetch(apiEndpoint, {
       method: 'POST',
@@ -200,16 +203,9 @@ ${description}
         model: 'gpt-4o-mini',
         messages: [{ 
           role: 'user',
-          content: [
-            {type: "text", text: message },
-            {
-              type: "image_url",
-              image_url: {
-                url:"https://static.mercdn.net/item/detail/orig/photos/m69173005357_1.jpg?1708580471"
-              }
-            }
-          ]  }],
-        max_tokens: 200
+          content: message
+         }],
+        max_tokens: 300
       })
     });
 

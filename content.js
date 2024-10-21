@@ -2,6 +2,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getDescription') {
       const descriptionElement = document.querySelector('pre[data-testid="description"]');
 
+
       // 星評価を計算する部分
       const ratingElements = document.querySelectorAll('.merRating .star__60fe6cce svg'); // 星評価を示すSVG要素
       let rating = 0;
@@ -23,23 +24,43 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           isVerified = true; // 本人確認済み
       }
 
-      if (descriptionElement) {
-          const description = descriptionElement.textContent.trim();
-          sendResponse({ 
-              description: description, 
-              rating: rating, 
-              ratingCount: ratingCount,
-              isVerified: isVerified
-          });
+      // 画像URLを取得
+      const imageUrls = [];
+      const imageDiv = document.querySelector('div[aria-label="商品画像1枚目"]');
+      if (imageDiv) {
+        let currentElement = imageDiv;
+        for (let i = 0; i < 4; i++) {
+            if (currentElement.nextElementSibling) {
+                currentElement = currentElement.nextElementSibling;
+            } else {
+                console.warn('4つ下のノードが存在しません。');
+            break;
+            }
+        }
+
+        const pictureElement = currentElement.querySelector('picture');
+        if (pictureElement) {
+            const img = pictureElement.querySelector('img');
+            if (img) {
+                imageUrls.push(img.scr);
+            } else {
+                console.warn('画像が見つかりませんでした。');
+            }
+        }
+
       } else {
-          console.error("Description element not found.");
-          sendResponse({ 
-              description: null, 
-              rating: null, 
-              ratingCount: null,
-              isVerified: null 
-          });
+        console.warn('指定の<div>が見つかりませんでした。');
       }
+
+      // 結果をレスポンスとして送信
+      sendResponse({
+        description: descriptionElement ? 
+        descriptionElement.textContent.trim() : null,
+        rating: rating,
+        ratingCount: ratingCount,
+        isVerified: isVerified,
+        imageUrls: imageUrls
+      });
   }
   return true; // 非同期で sendResponse を使用するため
 });
