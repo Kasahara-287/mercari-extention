@@ -24,34 +24,30 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           isVerified = true; // 本人確認済み
       }
 
-      // 画像URLを取得
-      const imageUrls = [];
-      const imageDiv = document.querySelector('div[aria-label="商品画像1枚目"]');
-      if (imageDiv) {
-        let currentElement = imageDiv;
-        for (let i = 0; i < 4; i++) {
-            if (currentElement.nextElementSibling) {
-                currentElement = currentElement.nextElementSibling;
+        // 画像URLを取得
+        const imageUrls = [];
+        const imageDiv = document.querySelector('div[aria-label="商品画像1枚目"]');
+        if (imageDiv) {
+            const figureElement = imageDiv.querySelector('figure');
+            if (figureElement) {
+                const pictureElement = figureElement.querySelector('picture');
+                if (pictureElement) {
+                    const img = pictureElement.querySelector('img');
+                    if (img) {
+                        imageUrls.push(img.src);
+                        console.log('画像URL:', imageUrls)
+                    } else {
+                        console.warn('画像が見つかりませんでした。');
+                    }
+                } else {
+                    console.warn('<picture>要素が見つかりませんでした。');
+                }
             } else {
-                console.warn('4つ下のノードが存在しません。');
-            break;
+                console.warn('<figure>要素が見つかりませんでした。');
             }
+        } else {
+            console.warn('指定の<div>が見つかりませんでした。');
         }
-
-        const pictureElement = currentElement.querySelector('picture');
-        if (pictureElement) {
-            const img = pictureElement.querySelector('img');
-            if (img) {
-                imageUrls.push(img.scr);
-            } else {
-                console.warn('画像が見つかりませんでした。');
-            }
-        }
-
-      } else {
-        console.warn('指定の<div>が見つかりませんでした。');
-      }
-
       // 結果をレスポンスとして送信
       sendResponse({
         description: descriptionElement ? 
@@ -59,7 +55,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         rating: rating,
         ratingCount: ratingCount,
         isVerified: isVerified,
-        imageUrls: imageUrls
+        imageUrls: imageUrls,
       });
   }
   return true; // 非同期で sendResponse を使用するため
