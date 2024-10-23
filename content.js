@@ -25,6 +25,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       }
 
         // 画像URLを取得
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const imageDiv = document.querySelector('div[aria-label="商品画像1枚目"]');
+            if (imageDiv) {
+              // 要素が見つかったら処理を開始
+            }
+          });
+
+          
         const imageUrls = [];
         const imageDiv = document.querySelector('div[aria-label="商品画像1枚目"]');
         if (imageDiv) {
