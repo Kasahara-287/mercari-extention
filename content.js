@@ -1,6 +1,7 @@
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getDescription') {
       const descriptionElement = document.querySelector('pre[data-testid="description"]');
+      const titleElement = document.querySelector('h1[class="heading__a7d91561 page__a7d91561"]');
 
 
       // 星評価を計算する部分
@@ -27,7 +28,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         // 画像URLを取得
 
         document.addEventListener('DOMContentLoaded', () => {
-            const imageDiv = document.querySelector('div[aria-label="商品画像1枚目"]');
+            const imageDiv = document.querySelector('div[aria-label="商品サムネイル"]');
             if (imageDiv) {
               // 要素が見つかったら処理を開始
             }
@@ -35,7 +36,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
           
         const imageUrls = [];
-        const imageDiv = document.querySelector('div[aria-label="商品画像1枚目"]');
+        const imageDiv = document.querySelector('div[aria-label="商品サムネイル"]');
         if (imageDiv) {
             const figureElement = imageDiv.querySelector('figure');
             if (figureElement) {
@@ -61,6 +62,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse({
         description: descriptionElement ? 
         descriptionElement.textContent.trim() : null,
+        title: titleElement ? 
+        titleElement.textContent.trim() : null,
         rating: rating,
         ratingCount: ratingCount,
         isVerified: isVerified,

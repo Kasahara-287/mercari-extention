@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (response && response.description) {
             try {
               // 1つ目の処理（危険度分析）
-              const result = await analyzeDescriptionForGreeting(response.description, response.imageUrls);
+              const result = await analyzeDescriptionForGreeting(response.description, response.imageUrls, response.title);
               const trustScore = calculateTrustScore(response.rating, response.ratingCount, response.isVerified);
               
               let trustClass = '';
@@ -33,10 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
               }
               
               if (result) {
-                resultElement.innerHTML = `
-                  <pre>${result}</pre>
-                  <h2 class="${trustClass}">出品者の信頼度: ${trustScore}</h2>
-                `;
+                formatAndDisplayResult(result, trustScore, trustClass);
               } else {
                 resultElement.textContent = 'Failed to analyze description.';
               }
@@ -161,33 +158,38 @@ function calculateTrustScore(rating, ratingCount, isVerified) {
 }
 
 // OpenAI API にリクエストを送信する関数
-async function analyzeDescriptionForGreeting(description, imageUrls) {
+async function analyzeDescriptionForGreeting(description, imageUrls, title) {
 
   apiKey='olqg0fgAIftacajXdBcyI2pc1TpyOGGOP0fzdOF7yHVRK0y7uMh9hF6LvpJ0J5TcpbELz6ys6NhBcKKZODQpl3A'
   const apiEndpoint = 'https://api.openai.iniad.org/api/v1/chat/completions';
   
   try {
-    const message = `あなたはメルカリで売られている商品が危険かどうかを判別し購入を控えるべきか否かを判断するAIです。以下の商品説明文、またメインの商品画像に基づいて商品購入についての危険度(詐欺の可能性があるか、不当な取引であるか、等)を評価してください。
+    const message = `あなたはメルカリで売られている商品が危険かどうかを判別し購入を控えるべきか否かを判断するAIです。以下の商品名、商品説明文、またメインの商品画像に基づいて商品購入についての危険度(詐欺の可能性があるか、不当な取引であるか、等)を評価してください。
 
 危険度が(0%-40%)の際は危険度:低、(41%-70%)では危険度:中、(71%-100%)では危険度:高と表記してください。
 以下が、商品を解析する際の条件です。    
 1,危険度は基本低めで設定してください。
 2,商品説明文において、文章がいびつであったり、詐欺または悪意があると思わしき用語がある場合は危険度を上げてください。また、説明文に「箱のみ」「本体は付属しません」などといった箱だけを送って本体を送らないような詐欺も存在するため、そのような文言が見受けられた場合にはさらに危険度を高めてください。
 3,商品画像については、商品説明で述べられていることとの差異や、詐欺または悪意などが見受けられる場合はより危険度を挙げてください。画像と商品説明文の差異が大きい場合、危険度：中以上まで大きく危険度を挙げてください。
-4,「無言取引NG」等の文言があった場合は、他フリマサイトと取引を同時に行っている可能性があります。その場合は「他サイトにも出品している可能性があり、取引時のトラブルに発展しやすい」と記載し、危険度を上げてください。
-5,「無言取引NG」等の文言がなかった場合に無言取引等に関する文章の記載は一切しないでください。「無言取引NG」等の文言がないというのはリスクにはなりません。またそれらの文言はないのが当たり前であるため、ないからと言って危険度を下げる、またはそれについての記述はしないでください。
-6,できるだけ詳しく記載してください。
-7,文章は一画面で収まるように約30文字で必ず改行を加えてください。
+4,また、商品画像の詳細についても分析し述べてください。何が写っているか、どんなものかをわかりやすく記述してください。（どんな物体か、どんな色か、等）
+5,「無言取引NG」等の文言があった場合は、他フリマサイトと取引を同時に行っている可能性があります。その場合は「他サイトにも出品している可能性があり、取引時のトラブルに発展しやすい」と記載し、危険度を上げてください。
+6,「無言取引NG」等の文言がなかった場合に無言取引等に関する文章の記載は一切しないでください。「無言取引NG」等の文言がないというのはリスクにはなりません。またそれらの文言はないのが当たり前であるため、ないからと言って危険度を下げる、またはそれについての記述はしないでください。
+7,できるだけ詳しく記載してください。
+8,文章は一画面で収まるように約30文字で必ず改行を加えてください。
 また、出力は次の形式でお願いします：
 
-[商品の危険度:高,商品の危険度:中,商品の危険度:低]
+[商品の危険度： 高,商品の危険度： 中,商品の危険度： 低]
 
-説明：[どのような商品か簡潔に](文章は一画面で収まるように約40文字で必ず改行を加えてください。)
-画像：[画像についての解析結果(何が写っているか、どのようなものか)を詳しく標示 文字などが書いている場合書き起こしてください。]
-リスク：[箇条書きでリスクを列挙](文章は一画面で収まるように約40文字で必ず改行を加えてください。)
+説明： [どのような商品か簡潔に]
 
-理由: [リスクに対する理由を簡潔に説明](文章は一画面で収まるように約40文字で必ず改行を加えてください。)
+画像： [画像についての解析結果(何が写っているか、どのようなものか)を詳しく標示 文字などが書いている場合書き起こしてください。]
 
+リスク： [箇条書きでリスクを列挙]
+
+理由： [リスクに対する理由を簡潔に説明](出力した文字数が枠組みに合うようにうまく改行してください)
+
+商品名:
+${title}
 商品説明:
 ${description}
 
@@ -206,7 +208,7 @@ ${imageUrls}
           role: 'user',
           content: message
          }],
-        max_tokens: 300
+        max_tokens: 350
       })
     });
 
@@ -223,4 +225,37 @@ ${imageUrls}
     console.error('Error during API request:', error);
     return null;
   }
+}
+
+// フォーマットして結果を表示する関数
+async function formatAndDisplayResult(aiResponse, trustScore, trustClass) {
+  const resultContainer = document.getElementById('result');
+
+  // 正規表現で各セクションを抽出
+  const riskLevel = aiResponse.match(/商品の危険度：\s*(高|中|低)/)?.[0] || '不明';
+  const description = aiResponse.match(/説明：\s*([\s\S]*?)画像：/)?.[1] || '情報がありません';
+  const imageAnalysis = aiResponse.match(/画像：\s*([\s\S]*?)リスク：/)?.[1] || '情報がありません';
+  const risks = aiResponse.match(/リスク：\s*([\s\S]*?)理由：/)?.[1]?.split('\n') || ['リスクが見つかりません'];
+  const reason = aiResponse.match(/理由：\s*([\s\S]*)/)?.[1] || '理由の記載がありません';
+
+ // HTML形式で整形
+ const formattedHTML = `
+ <h2>${riskLevel}</h2>
+ <h2 class="${trustClass}">出品者の信頼度： ${trustScore}</h2>
+ <h3>商品説明</h3>
+ <p>${description}</p>
+ <h3>画像解析結果</h3>
+ <p>${imageAnalysis}</p>
+ <h3>リスクの詳細</h3>
+ <ul>
+   ${risks.map(risk => `<li>${risk}</li>`).join('')}
+ </ul>
+ <h3>理由</h3>
+ <p>${reason}</p>
+`;
+
+// 結果をHTMLとして表示
+const resultElement = document.getElementById('result')
+resultContainer.innerHTML = formattedHTML;
+
 }
