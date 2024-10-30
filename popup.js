@@ -254,3 +254,41 @@ const resultElement = document.getElementById('result')
 resultContainer.innerHTML = formattedHTML;
 
 }
+
+// CSVファイルを読み込み、データを解析
+async function loadCSVData() {
+  const response = await fetch(model2.csv); // 正しいパスに置き換え
+  const data = await response.text();
+  const rows = data.split('\n').slice(1); // ヘッダー行を除去
+  const keywords = { scam: [], safe: [] };
+
+  rows.forEach(row => {
+      const [text, label] = row.split(',');
+      if (label.trim() === '1') {
+          keywords.scam.push(text.trim());
+      } else {
+          keywords.safe.push(text.trim());
+      }
+  });
+  return keywords;
+}
+
+// CSVキーワードを組み込んでanalyzeDescriptionForGreetingを更新
+async function analyzeDescriptionForGreeting(description, imageUrls, title) {
+  const keywords = await loadCSVData();
+  
+  // 詐欺キーワードが説明文に含まれているか確認
+  const containsScamWords = keywords.scam.some(keyword => description.includes(keyword));
+  const containsSafeWords = keywords.safe.some(keyword => description.includes(keyword));
+
+  let scamProbability = 0;
+  if (containsScamWords) {
+      scamProbability += 30; // 必要に応じて重みを調整
+  }
+  if (!containsSafeWords) {
+      scamProbability += 10;
+  }
+
+  // 既存のLLM API呼び出しを続行し、scamProbabilityを最終出力に反映
+  // ... 残りの解析ロジック ...
+}
