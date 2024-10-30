@@ -262,74 +262,49 @@ async function loadCSVData() {
       const response = await fetch(chrome.runtime.getURL("model2.csv"));
       const data = await response.text();
       
+      // ファイルが空でないか確認
+      if (!data) {
+          console.warn("CSVファイルが空です");
+          return { scam: [], safe: [] };
+      }
+
       const rows = data.split('\n').slice(1); // ヘッダー行を除去
       const keywords = { scam: [], safe: [] };
 
-      rows.forEach(row => {
+      rows.forEach((row, index) => {
           const columns = row.split(',');
           if (columns.length >= 2) { // columns[0]とcolumns[1]が存在するか確認
               const text = columns[0].trim();
               const label = columns[1].trim();
-              
+
               if (label === '1') {
                   keywords.scam.push(text);
               } else if (label === '0') {
                   keywords.safe.push(text);
+              } else {
+                  console.warn(`無効なラベル値（行${index + 2}）：${label}`);
               }
+          } else {
+              console.warn(`不正な行形式（行${index + 2}）：${row}`);
           }
       });
-      console.log("CSVデータ読み込み成功:", keywords); // デバッグ用ログ
+
+      // デバッグ用ログ出力
+      console.log("CSVデータ読み込み結果:", keywords);
+      console.log(`詐欺関連キーワード数: ${keywords.scam.length}`);
+      console.log(`安全なキーワード数: ${keywords.safe.length}`);
+
+      // キーワード数が少なすぎる場合に警告を出力
+      if (keywords.scam.length === 0) {
+          console.warn("詐欺関連キーワードが読み取れませんでした。");
+      }
+      if (keywords.safe.length === 0) {
+          console.warn("安全なキーワードが読み取れませんでした。");
+      }
+
       return keywords;
   } catch (error) {
       console.error("CSV読み込みエラー:", error);
       return { scam: [], safe: [] }; // エラー時は空データを返す
   }
 }
-
-// CSVキーワードを組み込んで analyzeDescriptionForGreeting を更新
-async function analyzeDescriptionForGreeting(description, imageUrls, title) {
-  const keywords = await loadCSVData();
-
-  // データが正しく読み込まれているか確認
-  if (!keywords || !keywords.scam || !keywords.safe) {
-      console.error("キーワードデータが正しく読み込まれていません");
-      return null;
-  }
-
-  const containsScamWords = keywords.scam.some(keyword => description.includes(keyword));
-  const containsSafeWords = keywords.safe.some(keyword => description.includes(keyword));
-
-  let scamProbability = 0;
-  if (containsScamWords) {
-      scamProbability += 30; // 必要に応じて重みを調整
-  }
-  if (!containsSafeWords) {
-      scamProbability += 10;
-  }
-
-  // リスクレベルを算出
-  const riskLevel = scamProbability >= 40 ? "高" : scamProbability >= 20 ? "中" : "低";
-  const apiEndpoint = 'https://api.openai.iniad.org/api/v1/chat/completions';
-  const message = `... APIリクエスト内容 ...\n商品の危険度: ${riskLevel}\n商品名: ${title}\n商品説明: ${description}\n画像URL: ${imageUrls}`;
-
-  try {
-      const response = await fetch(apiEndpoint, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${apiKey}`
-          },
-          body: JSON.stringify({
-              model: 'gpt-4o-mini',
-              messages: [{ role: 'user', content: message }],
-              max_tokens: 350
-          })
-      });
-      const data = await response.json();
-      return data.choices[0].message.content.trim();
-  } catch (error) {
-      console.error("APIリクエストエラー:", error);
-      return null;
-  }
-}
-
