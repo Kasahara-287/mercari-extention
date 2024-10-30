@@ -180,8 +180,6 @@ async function analyzeDescriptionForGreeting(description, imageUrls, title) {
 
 [商品の危険度： 高,商品の危険度： 中,商品の危険度： 低]
 
-説明： [どのような商品か簡潔に]
-
 画像： [画像についての解析結果(何が写っているか、どのようなものか)を詳しく標示 文字などが書いている場合書き起こしてください。]
 
 リスク： [箇条書きでリスクを列挙]
@@ -233,7 +231,6 @@ async function formatAndDisplayResult(aiResponse, trustScore, trustClass) {
 
   // 正規表現で各セクションを抽出
   const riskLevel = aiResponse.match(/商品の危険度：\s*(高|中|低)/)?.[0] || '不明';
-  const description = aiResponse.match(/説明：\s*([\s\S]*?)画像：/)?.[1] || '情報がありません';
   const imageAnalysis = aiResponse.match(/画像：\s*([\s\S]*?)リスク：/)?.[1] || '情報がありません';
   const risks = aiResponse.match(/リスク：\s*([\s\S]*?)理由：/)?.[1]?.split('\n') || ['リスクが見つかりません'];
   const reason = aiResponse.match(/理由：\s*([\s\S]*)/)?.[1] || '理由の記載がありません';
@@ -242,8 +239,6 @@ async function formatAndDisplayResult(aiResponse, trustScore, trustClass) {
  const formattedHTML = `
  <h2>${riskLevel}</h2>
  <h2 class="${trustClass}">出品者の信頼度： ${trustScore}</h2>
- <h3>商品説明</h3>
- <p>${description}</p>
  <h3>画像解析結果</h3>
  <p>${imageAnalysis}</p>
  <h3>リスクの詳細</h3>
