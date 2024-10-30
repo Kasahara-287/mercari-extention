@@ -255,40 +255,65 @@ resultContainer.innerHTML = formattedHTML;
 
 }
 
-// CSVファイルを読み込み、データを解析
 async function loadCSVData() {
-  const response = await fetch(model2.csv); // 正しいパスに置き換え
-  const data = await response.text();
-  const rows = data.split('\n').slice(1); // ヘッダー行を除去
-  const keywords = { scam: [], safe: [] };
+  try {
+      const response = await fetch(chrome.runtime.getURL("model2.csv")); // パスを確認
+      const data = await response.text();
+      const rows = data.split('\n').slice(1); // ヘッダー行を除去
+      const keywords = { scam: [], safe: [] };
 
-  rows.forEach(row => {
-      const [text, label] = row.split(',');
-      if (label.trim() === '1') {
-          keywords.scam.push(text.trim());
-      } else {
-          keywords.safe.push(text.trim());
-      }
-  });
-  return keywords;
+      rows.forEach(row => {
+          const [text, label] = row.split(',');
+          if (label.trim() === '1') {
+              keywords.scam.push(text.trim());
+          } else {
+              keywords.safe.push(text.trim());
+          }
+      });
+      console.log("CSVデータ読み込み成功:", keywords); // デバッグ用ログ
+      return keywords;
+  } catch (error) {
+      console.error("CSV読み込みエラー:", error);
+  }
 }
 
-// CSVキーワードを組み込んでanalyzeDescriptionForGreetingを更新
+
 async function analyzeDescriptionForGreeting(description, imageUrls, title) {
   const keywords = await loadCSVData();
-  
-  // 詐欺キーワードが説明文に含まれているか確認
+
   const containsScamWords = keywords.scam.some(keyword => description.includes(keyword));
   const containsSafeWords = keywords.safe.some(keyword => description.includes(keyword));
 
   let scamProbability = 0;
   if (containsScamWords) {
-      scamProbability += 30; // 必要に応じて重みを調整
+      scamProbability += 30; 
   }
   if (!containsSafeWords) {
       scamProbability += 10;
   }
 
-  // 既存のLLM API呼び出しを続行し、scamProbabilityを最終出力に反映
-  // ... 残りの解析ロジック ...
+  // 例: LLM API呼び出しの前にリスクレベルを判定してリクエスト内容を変更
+  const riskLevel = scamProbability >= 40 ? "高" : scamProbability >= 20 ? "中" : "低";
+  const apiEndpoint = 'https://api.openai.iniad.org/api/v1/chat/completions';
+  const message = `... APIリクエスト内容 ...\n商品の危険度: ${riskLevel}\n商品名: ${title}\n商品説明: ${description}\n画像URL: ${imageUrls}`;
+
+  try {
+      const response = await fetch(apiEndpoint, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+              model: 'gpt-4o-mini',
+              messages: [{ role: 'user', content: message }],
+              max_tokens: 350
+          })
+      });
+      const data = await response.json();
+      return data.choices[0].message.content.trim();
+  } catch (error) {
+      console.error("APIリクエストエラー:", error);
+      return null;
+  }
 }
