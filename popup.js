@@ -255,44 +255,59 @@ resultContainer.innerHTML = formattedHTML;
 
 }
 
+// CSVファイルを読み込み、データを解析する関数
 async function loadCSVData() {
   try {
-      const response = await fetch(chrome.runtime.getURL("model2.csv")); // パスを確認
+      // model2.csv のファイルパスを取得
+      const response = await fetch(chrome.runtime.getURL("model2.csv"));
       const data = await response.text();
+      
       const rows = data.split('\n').slice(1); // ヘッダー行を除去
       const keywords = { scam: [], safe: [] };
 
       rows.forEach(row => {
-          const [text, label] = row.split(',');
-          if (label.trim() === '1') {
-              keywords.scam.push(text.trim());
-          } else {
-              keywords.safe.push(text.trim());
+          const columns = row.split(',');
+          if (columns.length >= 2) { // columns[0]とcolumns[1]が存在するか確認
+              const text = columns[0].trim();
+              const label = columns[1].trim();
+              
+              if (label === '1') {
+                  keywords.scam.push(text);
+              } else if (label === '0') {
+                  keywords.safe.push(text);
+              }
           }
       });
       console.log("CSVデータ読み込み成功:", keywords); // デバッグ用ログ
       return keywords;
   } catch (error) {
       console.error("CSV読み込みエラー:", error);
+      return { scam: [], safe: [] }; // エラー時は空データを返す
   }
 }
 
-
+// CSVキーワードを組み込んで analyzeDescriptionForGreeting を更新
 async function analyzeDescriptionForGreeting(description, imageUrls, title) {
   const keywords = await loadCSVData();
+
+  // データが正しく読み込まれているか確認
+  if (!keywords || !keywords.scam || !keywords.safe) {
+      console.error("キーワードデータが正しく読み込まれていません");
+      return null;
+  }
 
   const containsScamWords = keywords.scam.some(keyword => description.includes(keyword));
   const containsSafeWords = keywords.safe.some(keyword => description.includes(keyword));
 
   let scamProbability = 0;
   if (containsScamWords) {
-      scamProbability += 30; 
+      scamProbability += 30; // 必要に応じて重みを調整
   }
   if (!containsSafeWords) {
       scamProbability += 10;
   }
 
-  // 例: LLM API呼び出しの前にリスクレベルを判定してリクエスト内容を変更
+  // リスクレベルを算出
   const riskLevel = scamProbability >= 40 ? "高" : scamProbability >= 20 ? "中" : "低";
   const apiEndpoint = 'https://api.openai.iniad.org/api/v1/chat/completions';
   const message = `... APIリクエスト内容 ...\n商品の危険度: ${riskLevel}\n商品名: ${title}\n商品説明: ${description}\n画像URL: ${imageUrls}`;
@@ -317,3 +332,4 @@ async function analyzeDescriptionForGreeting(description, imageUrls, title) {
       return null;
   }
 }
+
