@@ -187,6 +187,8 @@ async function analyzeDescriptionForGreeting(description, imageUrls, title) {
 
 理由： [リスクに対する理由を簡潔に説明](出力した文字数が枠組みに合うようにうまく改行してください)
 
+反映： [model2.csvを使った場合使ったlabelを表示]
+
 商品名:
 ${title}
 商品説明:
