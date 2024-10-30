@@ -181,8 +181,6 @@ async function analyzeDescriptionForGreeting(description, imageUrls, title) {
 
 [商品の危険度： 高,商品の危険度： 中,商品の危険度： 低]
 
-反映：[0,1]
-
 画像： [画像についての解析結果(何が写っているか、どのようなものか)を詳しく標示 文字などが書いている場合書き起こしてください。]
 
 リスク： [箇条書きでリスクを列挙]
@@ -237,6 +235,7 @@ async function formatAndDisplayResult(aiResponse, trustScore, trustClass) {
   const imageAnalysis = aiResponse.match(/画像：\s*([\s\S]*?)リスク：/)?.[1] || '情報がありません';
   const risks = aiResponse.match(/リスク：\s*([\s\S]*?)理由：/)?.[1]?.split('\n') || ['リスクが見つかりません'];
   const reason = aiResponse.match(/理由：\s*([\s\S]*)/)?.[1] || '理由の記載がありません';
+  const han = aiResponse.match(/反映：\s*(0|1)/)?.[0] || '反映されてません';
 
  // HTML形式で整形
  const formattedHTML = `
@@ -250,6 +249,8 @@ async function formatAndDisplayResult(aiResponse, trustScore, trustClass) {
  </ul>
  <h3>理由</h3>
  <p>${reason}</p>
+ <h3>反映</h3>
+ <p>${han}</p>
 `;
 
 // 結果をHTMLとして表示
