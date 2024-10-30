@@ -181,7 +181,7 @@ async function analyzeDescriptionForGreeting(description, imageUrls, title) {
 
 [商品の危険度： 高,商品の危険度： 中,商品の危険度： 低]
 
-反映[0,1]
+反映：[0,1]
 
 画像： [画像についての解析結果(何が写っているか、どのようなものか)を詳しく標示 文字などが書いている場合書き起こしてください。]
 
