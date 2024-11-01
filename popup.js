@@ -260,3 +260,19 @@ const resultElement = document.getElementById('result')
 resultContainer.innerHTML = formattedHTML;
 
 }
+async function analyzeDescriptionForScam(description) {
+  const response = await fetch('https://your-server-url/analyze', {  // ここにAPIのURLを記入
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: description })
+  });
+  const result = await response.json();
+
+  // 結果を表示
+  if (result.label === 1) {
+      document.getElementById('result').textContent = '詐欺の可能性あり (label 1)';
+  } else {
+      document.getElementById('result').textContent = '安全な文章 (label 0)';
+  }
+  document.getElementById('reflection').textContent = 'model2.csvを反映済み';
+}
