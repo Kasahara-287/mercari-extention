@@ -226,13 +226,17 @@ ${imageUrls}
 }
 
 // フォーマットして結果を表示する関数
+// フォーマットして結果を表示する関数
 async function formatAndDisplayResult(aiResponse, trustScore, trustClass) {
   const resultContainer = document.getElementById('result');
 
   // 正規表現で各セクションを抽出
   const riskLevel = aiResponse.match(/商品の危険度：\s*(高|中|低)/)?.[0] || '不明';
   const imageAnalysis = aiResponse.match(/画像：\s*([\s\S]*?)リスク：/)?.[1] || '情報がありません';
-  const risks = aiResponse.match(/リスク：\s*([\s\S]*?)理由：/)?.[1]?.split('\n').filter(risk => risk.trim() !== '') || ['リスクが見つかりません'];
+  const risks = aiResponse.match(/リスク：\s*([\s\S]*?)理由：/)?.[1]
+    ?.split('\n')
+    .map(risk => risk.replace(/^-/, '').trim()) // 文頭の '-' を削除してトリム
+    .filter(risk => risk !== '') || ['リスクが見つかりません'];
   const reason = aiResponse.match(/理由：\s*([\s\S]*)/)?.[1] || '理由の記載がありません';
 
   // 色を設定するクラスを riskLevel に基づいて設定
@@ -245,22 +249,19 @@ async function formatAndDisplayResult(aiResponse, trustScore, trustClass) {
     riskColorClass = 'low-risk';
   }
 
- // HTML形式で整形
- const formattedHTML = `
- <h2 class="${riskColorClass}">${riskLevel}</h2>
- <h2 class="${trustClass}">出品者の信頼度： ${trustScore}</h2>
- <h3>画像解析結果</h3>
- <p>${imageAnalysis}</p>
- <h3>リスクの詳細</h3>
- <ul>
-   ${risks.map(risk => `<li>${risk}</li>`).join('')}
- </ul>
- <h3>理由</h3>
- <p>${reason}</p>
-`;
+  // HTML形式で整形
+  const formattedHTML = `
+    <h2 class="${riskColorClass}">${riskLevel}</h2>
+    <h2 class="${trustClass}">出品者の信頼度： ${trustScore}</h2>
+    <h3>画像解析結果</h3>
+    <p>${imageAnalysis}</p>
+    <h3>リスクの詳細</h3>
+    <ul>
+      ${risks.map(risk => `<li>${risk}</li>`).join('')}
+    </ul>
+    <h3>理由</h3>
+    <p>${reason}</p>
+  `;
 
-// 結果をHTMLとして表示
-const resultElement = document.getElementById('result')
-resultContainer.innerHTML = formattedHTML;
-
+  resultContainer.innerHTML = formattedHTML;
 }
