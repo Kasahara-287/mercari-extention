@@ -113,6 +113,18 @@ ul{
   color: red; /* 低信頼度は赤 */
 }
 
+.low-risk {
+  color: green; /* 高信頼度は緑 */
+}
+
+.medium-risk {
+  color: orange; /* 中信頼度はオレンジ */
+}
+
+.high-risk {
+  color: red; /* 低信頼度は赤 */
+}
+
 
 
 @keyframes slide {

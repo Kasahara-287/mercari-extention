@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.tabs.sendMessage(tab.id, { action: 'getDescription' }, async (response) => {
           if (response && response.description) {
             try {
-              // 1つ目の処理（危険度分析）
+              // 1つ目の処理（信頼度分析）
               const result = await analyzeDescriptionForGreeting(response.description, response.imageUrls, response.title);
               const trustScore = calculateTrustScore(response.rating, response.ratingCount, response.isVerified);
               
@@ -235,9 +235,19 @@ async function formatAndDisplayResult(aiResponse, trustScore, trustClass) {
   const risks = aiResponse.match(/リスク：\s*([\s\S]*?)理由：/)?.[1]?.split('\n') || ['リスクが見つかりません'];
   const reason = aiResponse.match(/理由：\s*([\s\S]*)/)?.[1] || '理由の記載がありません';
 
+  // 色を設定するクラスを riskLevel に基づいて設定
+  let riskColorClass = '';
+  if (riskLevel.includes('高')) {
+    riskColorClass = 'high-risk';
+  } else if (riskLevel.includes('中')) {
+    riskColorClass = 'medium-risk';
+  } else if (riskLevel.includes('低')) {
+    riskColorClass = 'low-risk';
+  }
+
  // HTML形式で整形
  const formattedHTML = `
- <h2>${riskLevel}</h2>
+ <h2 class="${riskColorClass}">${riskLevel}</h2>
  <h2 class="${trustClass}">出品者の信頼度： ${trustScore}</h2>
  <h3>画像解析結果</h3>
  <p>${imageAnalysis}</p>
