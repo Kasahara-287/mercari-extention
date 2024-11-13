@@ -232,7 +232,7 @@ async function formatAndDisplayResult(aiResponse, trustScore, trustClass) {
   // 正規表現で各セクションを抽出
   const riskLevel = aiResponse.match(/商品の危険度：\s*(高|中|低)/)?.[0] || '不明';
   const imageAnalysis = aiResponse.match(/画像：\s*([\s\S]*?)リスク：/)?.[1] || '情報がありません';
-  const risks = aiResponse.match(/リスク：\s*([\s\S]*?)理由：/)?.[1]?.split('\n') || ['リスクが見つかりません'];
+  const risks = aiResponse.match(/リスク：\s*([\s\S]*?)理由：/)?.[1]?.split('\n').filter(risk => risk.trim() !== '') || ['リスクが見つかりません'];
   const reason = aiResponse.match(/理由：\s*([\s\S]*)/)?.[1] || '理由の記載がありません';
 
   // 色を設定するクラスを riskLevel に基づいて設定
