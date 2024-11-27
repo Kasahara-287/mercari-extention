@@ -12,3 +12,12 @@ chrome.runtime.onInstalled.addListener(() => {
     console.log('APIキーが正常に保存されました');
   });
 });
+chrome.runtime.onInstalled.addListener(() => {
+  console.log("拡張機能がインストールされました！");
+});
+
+// ボタンがクリックされた時の処理
+chrome.action.onClicked.addListener((tab) => {
+  console.log("アクションボタンがクリックされました！", tab);
+});
+
