@@ -4,3 +4,11 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("Message received in background:", message);
 });
+
+// background.jsでAPIキーを保存
+chrome.runtime.onInstalled.addListener(() => {
+  const apiKey = "olqg0fgAIftacajXdBcyI2pc1TpyOGGOP0fzdOF7yHVRK0y7uMh9hF6LvpJ0J5TcpbELz6ys6NhBcKKZODQpl3A";  // ここに実際のAPIキーを入力してください
+  chrome.storage.local.set({ apikey: apiKey }, () => {
+    console.log('APIキーが正常に保存されました');
+  });
+});

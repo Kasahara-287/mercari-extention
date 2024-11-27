@@ -67,9 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-
 async function getProductInfo(title, description) {
-  const apiKey = 'olqg0fgAIftacajXdBcyI2pc1TpyOGGOP0fzdOF7yHVRK0y7uMh9hF6LvpJ0J5TcpbELz6ys6NhBcKKZODQpl3A';
   const apiEndpoint = 'https://api.openai.iniad.org/api/v1/chat/completions';
 
   const prompt = `商品のタイトル: ${title}\n商品の説明文: ${description}\nこの商品の正式名称、定価、商品説明を提供してください。注意書き、前置きなどは必要としません。定価、商品説明はネットから引用してきてください。定価に関しては簡潔に数字のみで前置き、注意書きなどは記載しないで回答してください。
@@ -82,24 +80,49 @@ async function getProductInfo(title, description) {
   商品説明:(出力した文字数が枠組みに合うようにうまく改行してください)
   `;
 
-  const response = await fetch(apiEndpoint, {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
+  return new Promise((resolve, reject) => {
+    // `chrome.storage.local`からAPIキーを取得
+    chrome.storage.local.get('apikey', async (result) => {
+      const apiKey = result.apikey;
+      if (!apiKey) {
+        console.error('APIキーが取得できませんでした');
+        reject('APIキーが取得できませんでした');
+        return;
+      }
+
+      try {
+        const response = await fetch(apiEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: [
               { role: 'system', content: 'You are a helpful assistant.' },
               { role: 'user', content: prompt }
-          ]
-      })
-  });
+            ]
+          })
+        });
 
-  const data = await response.json();
-  return data.choices[0].message.content;
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('API request failed with status:', response.status, 'and message:', errorText);
+          reject(errorText);
+          return;
+        }
+
+        const data = await response.json();
+        resolve(data.choices[0].message.content);
+      } catch (error) {
+        console.error('Error during API request:', error);
+        reject(error);
+      }
+    });
+  });
 }
+
 
 // メルカリページからタイトルと説明文を取得
 function extractProductDetails() {
@@ -157,25 +180,38 @@ function calculateTrustScore(rating, ratingCount, isVerified) {
   }
 }
 
-// OpenAI API にリクエストを送信する関数
+// OpenAI APIにリクエストを送信する関数
 async function analyzeDescriptionForGreeting(description, imageUrls, title) {
-
-  apiKey='olqg0fgAIftacajXdBcyI2pc1TpyOGGOP0fzdOF7yHVRK0y7uMh9hF6LvpJ0J5TcpbELz6ys6NhBcKKZODQpl3A'
   const apiEndpoint = 'https://api.openai.iniad.org/api/v1/chat/completions';
-  
-  try {
-    const message = `あなたはメルカリで売られている商品が危険かどうかを判別し購入を控えるべきか否かを判断するAIです。以下の商品名、商品説明文、またメインの商品画像に基づいて商品購入についての危険度(詐欺の可能性があるか、不当な取引であるか、等)を評価してください。
 
-危険度が(0%-40%)の際は危険度:低、(41%-70%)では危険度:中、(71%-100%)では危険度:高と表記してください。
-以下が、商品を解析する際の条件です。    
-1,危険度は基本低めで設定してください。
-2,商品説明文において、文章がいびつであったり、詐欺または悪意があると思わしき用語がある場合は危険度を上げてください。また、説明文に「箱のみ」「本体は付属しません」などといった箱だけを送って本体を送らないような詐欺も存在するため、そのような文言が見受けられた場合にはさらに危険度を高めてください。
-3,商品画像については、商品説明で述べられていることとの差異や、詐欺または悪意などが見受けられる場合はより危険度を挙げてください。画像と商品説明文の差異が大きい場合、危険度：中以上まで大きく危険度を挙げてください。
-4,また、商品画像の詳細についても分析し述べてください。何が写っているか、どんなものかをわかりやすく記述してください。（どんな物体か、どんな色か、等）
-5,「無言取引NG」等の文言があった場合は、他フリマサイトと取引を同時に行っている可能性があります。その場合は「他サイトにも出品している可能性があり、取引時のトラブルに発展しやすい」と記載し、危険度を上げてください。
-6,「無言取引NG」等の文言がなかった場合に無言取引等に関する文章の記載は一切しないでください。「無言取引NG」等の文言がない場合は他サイトに出品の有無などについて触れないでください。「無言取引NG」等の文言がないというのはリスクにはなりません。またそれらの文言はないのが当たり前であるため、ないからと言って危険度を下げる、またはそれについての記述はしないでください。
-7,できるだけ詳しく記載してください。
-8,文章は一画面で収まるように約30文字で必ず改行を加えてください。
+  // 非同期でAPIキーを取得
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get('apikey', async (result) => {
+      if (!result.apikey) {
+        console.error('APIキーが取得できませんでした');
+        reject('APIキーが取得できませんでした');
+        return;
+      }
+
+      const apiKey = result.apikey;
+      const message = `あなたはメルカリで売られている商品が危険かどうかを判別し購入を控えるべきか否かを判断するAIです。以下の商品名、商品説明文、またメインの商品画像に基づいて商品購入についての危険度(詐欺の可能性があるか、不当な取引であるか、等)を評価してください。
+次の手順に沿って解析を進めてください。
+1,商品説明文を解析する。
+2,商品画像を解析する。
+3,解析結果をもとに危険度を算出する。
+以下が、商品説明を解析する際の条件です。    
+1,「無言取引NG」等の文言があった場合は、他フリマサイトと取引を同時に行っている可能性があります。その場合は「他サイトにも出品している可能性があり、取引時のトラブルに発展しやすい」と記載し、危険度を上げてください。
+2,「無言取引NG」等の文言がなかった場合に無言取引等に関する文章の記載は一切しないでください。「無言取引NG」等の文言がないというのはリスクにはなりません。またそれらの文言はないのが当たり前であるため、ないからと言って危険度を下げる、またはそれについての記述はしないでください。
+3,商品説明文において、文章がいびつであったり、詐欺または悪意があると思わしき用語がある場合は危険度を上げてください。また、説明文に「箱のみ」「本体は付属しません」などといった箱だけを送って本体を送らないような詐欺も存在するため、そのような文言が見受けられた場合にはさらに危険度を高めてください。
+以下が、商品画像を解析する際の条件です。
+1,まず、どのような商品が写っているか記載してください。（モノ、色、形、など）
+2,商品画像のみから読み取れないことについては記載しないでください。
+3,写っているものについて、商品説明で述べられていることとの差異や、詐欺または悪意などが見受けられる場合はより危険度を挙げてください。画像と商品説明文の差異が大きい場合、危険度：中以上まで大きく危険度を挙げてください。
+以下が、危険度を算出する際の条件です。
+1,危険度が(0%-40%)の際は危険度:低、(41%-70%)では危険度:中、(71%-100%)では危険度:高と表記してください。
+2,危険度は基本低めで設定してください。
+3,できるだけ詳しく記載してください。
+
 また、出力は次の形式でお願いします：
 
 [商品の危険度： 高,商品の危険度： 中,商品の危険度： 低]
@@ -193,36 +229,36 @@ ${description}
 
 画像URL:
 ${imageUrls}
-`;
-    const response = await fetch(apiEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [{ 
-          role: 'user',
-          content: message
-         }],
-        max_tokens: 350
-      })
+`; // メッセージ部分は省略しています
+
+      try {
+        const response = await fetch(apiEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o-mini',
+            messages: [{ role: 'user', content: message }],
+            max_tokens: 350
+          })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('APIリクエストが失敗しました:', response.status, 'メッセージ:', errorText);
+          reject(errorText);
+        }
+
+        const data = await response.json();
+        resolve(data.choices[0].message.content.trim());
+      } catch (error) {
+        console.error('APIリクエスト中にエラーが発生しました:', error);
+        reject(error);
+      }
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API request failed with status:', response.status, 'and message:', errorText);
-      return null;
-    }
-
-    const data = await response.json();
-    console.log('API response:', data);
-    return data.choices[0].message.content.trim();
-  } catch (error) {
-    console.error('Error during API request:', error);
-    return null;
-  }
+  });
 }
 
 // フォーマットして結果を表示する関数

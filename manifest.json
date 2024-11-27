@@ -5,7 +5,8 @@
   "description": "Analyze Mercari product descriptions to detect potential scams.",
   "permissions": ["activeTab", "scripting", "storage"],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "scripts": ["apikey.js", "popup.js"]
   },
   "action": {
     "default_popup": "popup.html"
@@ -13,10 +14,16 @@
   "content_scripts": [
     {
       "matches": ["https://jp.mercari.com/*"],
-      "js": ["content.js"]
+      "js": ["content.js", "apikey.js"]
     }
   ],
   "host_permissions": [
     "https://api.openai.iniad.org/*"
-  ]
+  ],
+  "web_accessible_resources": [
+  {
+    "resources": ["apikey.js"],
+    "matches": ["<all_urls>"]
+  }
+]
 }
