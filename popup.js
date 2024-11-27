@@ -208,19 +208,19 @@ async function analyzeDescriptionForGreeting(description, imageUrls, title) {
 2,商品画像のみから読み取れないことについては記載しないでください。
 3,写っているものについて、商品説明で述べられていることとの差異や、詐欺または悪意などが見受けられる場合はより危険度を挙げてください。画像と商品説明文の差異が大きい場合、危険度：中以上まで大きく危険度を挙げてください。
 以下が、危険度を算出する際の条件です。
-1,危険度が(0%-40%)の際は危険度:低、(41%-70%)では危険度:中、(71%-100%)では危険度:高と表記してください。
+1,危険度が(0%-40%)の際は危険度:安心、(41%-70%)では危険度:少し注意、(71%-100%)では危険度:リスクありと表記してください。
 2,危険度は基本低めで設定してください。
 3,できるだけ詳しく記載してください。
 
 また、出力は次の形式でお願いします：
 
-[商品の危険度： 高,商品の危険度： 中,商品の危険度： 低]
-
-画像： [画像についての解析結果(何が写っているか、どのようなものか)を詳しく標示 文字などが書いている場合書き起こしてください。]
+[商品の危険度： リスクあり,商品の危険度： 少し注意,商品の危険度： 安心]
 
 リスク： [箇条書きでリスクを列挙]
 
 理由： [リスクに対する理由を簡潔に説明](出力した文字数が枠組みに合うようにうまく改行してください)
+
+画像： [画像についての解析結果(何が写っているか、どのようなものか)を詳しく標示 文字などが書いている場合書き起こしてください。]
 
 商品名:
 ${title}
@@ -267,21 +267,21 @@ async function formatAndDisplayResult(aiResponse, trustScore, trustClass) {
   const resultContainer = document.getElementById('result');
 
   // 正規表現で各セクションを抽出
-  const riskLevel = aiResponse.match(/商品の危険度：\s*(高|中|低)/)?.[0] || '不明';
-  const imageAnalysis = aiResponse.match(/画像：\s*([\s\S]*?)リスク：/)?.[1] || '情報がありません';
+  const riskLevel = aiResponse.match(/商品の危険度：\s*(リスクあり|少し注意|安心)/)?.[0] || '不明';
   const risks = aiResponse.match(/リスク：\s*([\s\S]*?)理由：/)?.[1]
     ?.split('\n')
     .map(risk => risk.replace(/^-/, '').trim()) // 文頭の '-' を削除してトリム
     .filter(risk => risk !== '') || ['リスクが見つかりません'];
-  const reason = aiResponse.match(/理由：\s*([\s\S]*)/)?.[1] || '理由の記載がありません';
+  const reason = aiResponse.match(/理由：\s*([\s\S]*?)画像：/)?.[1] || '理由の記載がありません';
+  const imageAnalysis = aiResponse.match(/画像：\s*([\s\S]*)/)?.[1] || '情報がありません';
 
   // 色を設定するクラスを riskLevel に基づいて設定
   let riskColorClass = '';
-  if (riskLevel.includes('高')) {
+  if (riskLevel.includes('リスクあり')) {
     riskColorClass = 'high-risk';
-  } else if (riskLevel.includes('中')) {
+  } else if (riskLevel.includes('少し注意')) {
     riskColorClass = 'medium-risk';
-  } else if (riskLevel.includes('低')) {
+  } else if (riskLevel.includes('安心')) {
     riskColorClass = 'low-risk';
   }
 
@@ -289,14 +289,14 @@ async function formatAndDisplayResult(aiResponse, trustScore, trustClass) {
   const formattedHTML = `
     <h2 class="${riskColorClass}">${riskLevel}</h2>
     <h2 class="${trustClass}">出品者の信頼度： ${trustScore}</h2>
-    <h3>画像解析結果</h3>
-    <p>${imageAnalysis}</p>
     <h3>リスクの詳細</h3>
     <ul>
       ${risks.map(risk => `<li>${risk}</li>`).join('')}
     </ul>
     <h3>理由</h3>
     <p>${reason}</p>
+    <h3>画像解析結果</h3>
+    <p>${imageAnalysis}</p>
   `;
 
   resultContainer.innerHTML = formattedHTML;
