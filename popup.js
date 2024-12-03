@@ -66,6 +66,66 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+document.addEventListener('DOMContentLoaded', () => {
+  const analyzeButton = document.getElementById('analyzeButton');
+  const resultElement = document.getElementById('result');
+  const resultElement2 = document.getElementById('result2');
+
+  let scamPhrases = []; // 詐欺構文を格納する配列
+
+  // JSONファイルから詐欺構文を読み込む
+  fetch(chrome.runtime.getURL('scam_phrases.json'))
+    .then(response => response.json())
+    .then(data => {
+      scamPhrases = data; // JSONから読み込んだ詐欺構文を設定
+    })
+    .catch(error => console.error('詐欺構文の読み込みに失敗しました:', error));
+
+  analyzeButton.addEventListener('click', async () => {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+      resultElement.textContent = '読み込み中です';
+      resultElement2.textContent = '読み込み中です';
+      analyzeButton.disabled = true;
+
+      chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ['content.js']
+      }, async () => {
+        chrome.tabs.sendMessage(tab.id, { action: 'getDescription' }, async (response) => {
+          if (response && response.description) {
+            const description = response.description;
+
+            // 詐欺構文をチェック
+            const detectedRisks = scamPhrases.filter(phrase => description.includes(phrase));
+
+            // 結果をフォーマット
+            const resultHtml = `
+              <h3>リスクの詳細</h3>
+              <ul>
+                ${detectedRisks.map(risk => `<li>${risk}</li>`).join('')}
+              </ul>
+              <h3>理由</h3>
+              <p>${detectedRisks.length > 0 ? "詐欺構文が含まれているため、注意が必要です。" : "詐欺構文は検出されませんでした。"}</p>
+            `;
+
+            resultElement.innerHTML = resultHtml;
+            analyzeButton.disabled = false;
+          } else {
+            resultElement.textContent = '商品説明を取得できませんでした。';
+            resultElement2.textContent = '';
+            analyzeButton.disabled = false;
+          }
+        });
+      });
+    } catch (error) {
+      console.error("Error during analysis:", error);
+      resultElement.textContent = 'エラーが発生しました。';
+      analyzeButton.disabled = false;
+    }
+  });
+});
 
 async function getProductInfo(title, description) {
   const apiEndpoint = 'https://api.openai.iniad.org/api/v1/chat/completions';

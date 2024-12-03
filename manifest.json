@@ -22,7 +22,7 @@
   ],
   "web_accessible_resources": [
   {
-    "resources": ["apikey.js"],
+    "resources": ["apikey.js", "scam_phrases.json"],
     "matches": ["<all_urls>"]
   }
 ]
