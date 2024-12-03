@@ -353,7 +353,6 @@ async function formatAndDisplayResult(aiResponse, trustScore, trustClass) {
     <ul>
       ${risks.map(risk => `<li>${risk}</li>`).join('')}
     </ul>
-    <p>${detectedRisks.length > 0 ? "詐欺構文が含まれているため、注意が必要です。" : "詐欺構文は検出されませんでした。"}</p>
     <h3>理由</h3>
     <p>${reason}</p>
     <h3>画像解析結果</h3>
