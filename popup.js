@@ -271,6 +271,24 @@ async function analyzeDescriptionForGreeting(description, imageUrls, title) {
 1,危険度が(0%-40%)の際は危険度:安心、(41%-70%)では危険度:少し注意、(71%-100%)では危険度:リスクありと表記してください。
 2,危険度は基本低めで設定してください。
 3,できるだけ詳しく記載してください。
+以下が詐欺構文の一例です。詐欺構文が少しでも含まれている場合はそれについて記述してください。
+[
+    "本物のブランド品ですが返品不可。",
+    "この商品は返品不可です。",
+    "新品同様です！ただし返品は不可です",
+    "早い者勝ち！今だけ○○円！",
+    "事情があって急いで売ります",
+    "新品同様！一度も使用していません！",
+    "返品・返金は一切受け付けません",
+    "正規品ですが、箱はありません",
+    "動作確認していませんが動くと思います",
+    "支払いは外部の○○アプリでお願いします",
+    "コメント欄で直接取引を希望",
+    "高額なものですが格安でお譲りします",
+    "発送は○○日後になります",
+    "詳しい写真はお見せできません"
+]
+
 
 また、出力は次の形式でお願いします：
 
@@ -330,10 +348,11 @@ async function formatAndDisplayResult(aiResponse, trustScore, trustClass) {
 
   // 正規表現で各セクションを抽出
   const riskLevel = aiResponse.match(/商品の危険度：\s*(リスクあり|少し注意|安心)/)?.[0] || '不明';
-  const risks = aiResponse.match(/リスク：\s*([\s\S]*?)理由：/)?.[1]
+  const risks = aiResponse.match(/リスク：\s*([\s\S]*?)詐欺構文：/)?.[1]
     ?.split('\n')
     .map(risk => risk.replace(/^-/, '').trim()) // 文頭の '-' を削除してトリム
     .filter(risk => risk !== '') || ['リスクが見つかりません'];
+  const koubunn = aiResponse.match(/詐欺構文：\s*([\s\S]*?)理由：/)?.[1] || '特に説明文の記載に問題はありませんでした';
   const reason = aiResponse.match(/理由：\s*([\s\S]*?)画像：/)?.[1] || '理由の記載がありません';
   const imageAnalysis = aiResponse.match(/画像：\s*([\s\S]*)/)?.[1] || '情報がありません';
 
@@ -355,6 +374,8 @@ async function formatAndDisplayResult(aiResponse, trustScore, trustClass) {
     <ul>
       ${risks.map(risk => `<li>${risk}</li>`).join('')}
     </ul>
+    <h3>詐欺構文</h3>
+    <p class="${koubunn}"</p>
     <h3>理由</h3>
     <p>${reason}</p>
     <h3>画像解析結果</h3>
