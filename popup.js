@@ -213,7 +213,7 @@ async function analyzeDescriptionForGreeting(description, imageUrls, title) {
 3,できるだけ詳しく記載してください。
 以下の[]で囲まれてる文章が詐欺によく使われている文章です。これを詐欺によく使われる文と定義しました。詐欺構文が少しでも含まれている場合はそれについて記述してください。また含まれた場合は危険度にも反映させてください。
 [
-    「早い者勝ち！今だけ○○円！」
+[早い者勝ち！今だけ○○円！」
 「事情があって急いで売ります」
 「新品同様！一度も使用していません！」
 「返品・返金は一切受け付けません」
@@ -298,7 +298,7 @@ ${imageUrls}
           body: JSON.stringify({
             model: 'gpt-4o-mini',
             messages: [{ role: 'user', content: message }],
-            max_tokens: 350
+            max_tokens: 500
           })
         });
 
