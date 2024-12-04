@@ -375,7 +375,7 @@ async function formatAndDisplayResult(aiResponse, trustScore, trustClass) {
       ${risks.map(risk => `<li>${risk}</li>`).join('')}
     </ul>
     <h3>詐欺構文</h3>
-    <p class="${koubunn}"</p>
+    <p>${koubunn}</p>
     <h3>理由</h3>
     <p>${reason}</p>
     <h3>画像解析結果</h3>
