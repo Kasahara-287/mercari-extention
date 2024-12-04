@@ -325,7 +325,7 @@ async function formatAndDisplayResult(aiResponse, trustScore, trustClass) {
 
   // 正規表現で各セクションを抽出
   const riskLevel = aiResponse.match(/商品の危険度：\s*(リスクあり|少し注意|安心)/)?.[0] || '不明';
-  const risks = aiResponse.match(/リスク：\s*([\s\S]*?)詐欺構文：/)?.[1]
+  const risks = aiResponse.match(/リスク：\s*([\s\S]*?)詐欺によく使われる文：/)?.[1]
     ?.split('\n')
     .map(risk => risk.replace(/^-/, '').trim()) // 文頭の '-' を削除してトリム
     .filter(risk => risk !== '') || ['リスクが見つかりません'];
