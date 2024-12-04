@@ -329,7 +329,10 @@ async function formatAndDisplayResult(aiResponse, trustScore, trustClass) {
     ?.split('\n')
     .map(risk => risk.replace(/^-/, '').trim()) // 文頭の '-' を削除してトリム
     .filter(risk => risk !== '') || ['リスクが見つかりません'];
-  const koubunn = aiResponse.match(/詐欺によく使われる文：\s*([\s\S]*?)理由：/)?.[1] || '特に説明文の記載に問題はありませんでした';
+  const koubunns = aiResponse.match(/詐欺によく使われる文：\s*([\s\S]*?)理由：/)?.[1] 
+    ?.split('\n')
+    .map(koubunn => koubunn.replace(/^-/, '').trim()) // 文頭の '-' を削除してトリム
+    .filter(koubunn => koubunn !== '') || ['特に説明文の記載に問題はありませんでした'];
   const reason = aiResponse.match(/理由：\s*([\s\S]*?)画像：/)?.[1] || '理由の記載がありません';
   const imageAnalysis = aiResponse.match(/画像：\s*([\s\S]*)/)?.[1] || '情報がありません';
 
@@ -352,7 +355,9 @@ async function formatAndDisplayResult(aiResponse, trustScore, trustClass) {
       ${risks.map(risk => `<li>${risk}</li>`).join('')}
     </ul>
     <h3>詐欺によく使われる文</h3>
-    <p>${koubunn}</p>
+    <ul>
+      ${koubunns.map(koubunn => `<li>${koubunn}</li>`).join('')}
+    </ul>
     <h3>理由</h3>
     <p>${reason}</p>
     <h3>画像解析結果</h3>
